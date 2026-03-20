@@ -10,7 +10,7 @@ export interface EmptyStateProps {
   action?: React.ReactNode;
 }
 
-export default function EmptyState({ icon: Icon, title, description, actionLabel, onAction }: EmptyStateProps) {
+export default function EmptyState({ icon: Icon, title, description, actionLabel, onAction, action }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
       <Icon className="h-12 w-12 text-muted-foreground mb-4" strokeWidth={1.5} />
@@ -21,6 +21,7 @@ export default function EmptyState({ icon: Icon, title, description, actionLabel
           {actionLabel}
         </Button>
       )}
+      {action}
     </div>
   );
 }
