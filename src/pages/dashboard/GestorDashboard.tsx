@@ -19,6 +19,7 @@ export default function GestorDashboard() {
   const navigate = useNavigate();
   const { alerts } = useAlerts();
   const { accountsWithScore, totals, loading, activeCount } = useGestorMetrics();
+  const { isTrial, getDaysUntilExpiry, getMaxAccounts } = usePlan();
   const unresolvedAlerts = alerts.filter(a => !a.is_resolved).slice(0, 5);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Gestor';
