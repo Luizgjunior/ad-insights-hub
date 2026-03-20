@@ -1,68 +1,218 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppShell from '@/components/layout/AppShell';
 import EmptyState from '@/components/ui/EmptyState';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { FileText, Download, Plus } from 'lucide-react';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import GenerateReportModal from '@/components/reports/GenerateReportModal';
+import { useReports } from '@/hooks/useReports';
+import { useMetaAccounts } from '@/hooks/useMetaAccounts';
+import { FileText, Download, Plus, Eye, Share2, Loader2, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const mockReports = [
-  { id: '1', title: 'Relatório Semanal — 10 a 16 Mar', type: 'weekly', status: 'active' as const, date: '17/03/2026' },
-  { id: '2', title: 'Relatório Mensal — Fevereiro 2026', type: 'monthly', status: 'active' as const, date: '01/03/2026' },
-  { id: '3', title: 'Relatório Semanal — 17 a 20 Mar', type: 'weekly', status: 'warning' as const, date: '20/03/2026' },
-];
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
 
 const statusLabels: Record<string, string> = {
-  active: 'Pronto',
-  warning: 'Gerando...',
+  ready: 'Pronto',
+  generating: 'Gerando...',
   error: 'Erro',
 };
 
+const statusMap: Record<string, 'active' | 'warning' | 'error'> = {
+  ready: 'active',
+  generating: 'warning',
+  error: 'error',
+};
+
 export default function ReportsList() {
+  const navigate = useNavigate();
+  const { accounts } = useMetaAccounts();
+  const [filterAccount, setFilterAccount] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const { reports, loading } = useReports(
+    filterAccount !== 'all' ? filterAccount : undefined
+  );
+
+  const filteredReports = reports.filter(r => {
+    if (filterType !== 'all' && r.report_type !== filterType) return false;
+    return true;
+  });
+
+  function handleShare(reportId: string) {
+    const url = `${window.location.origin}/reports/${reportId}`;
+    navigator.clipboard.writeText(url);
+    toast.success('Link copiado!');
+  }
+
+  function handleDownload(report: any) {
+    const html = (report.content_json as any)?.html;
+    if (!html) return;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    setTimeout(() => {
+      win?.print();
+      URL.revokeObjectURL(url);
+    }, 500);
+  }
+
+  const score = (report: any) => {
+    const json = report.content_json as any;
+    return json?.aiInsights?.score ?? null;
+  };
+
   return (
     <AppShell title="Relatórios">
-      <div className="p-5 lg:p-8 space-y-5 max-w-4xl">
+      <div className="p-4 lg:p-8 space-y-5 max-w-4xl">
+        {/* Header */}
         <div className="flex items-center justify-between animate-reveal-up">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">Relatórios</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Relatórios gerados automaticamente com IA</p>
           </div>
-          <Button className="active:scale-[0.98]">
+          <Button onClick={() => setModalOpen(true)} className="active:scale-[0.98]">
             <Plus className="h-4 w-4" />
-            Novo relatório
+            Gerar relatório
           </Button>
         </div>
 
-        {mockReports.length === 0 ? (
-          <EmptyState icon={FileText} title="Nenhum relatório" description="Relatórios serão gerados automaticamente" />
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 animate-reveal-up" style={{ animationDelay: '60ms' }}>
+          <Select value={filterAccount} onValueChange={setFilterAccount}>
+            <SelectTrigger className="w-48 bg-card border-border">
+              <SelectValue placeholder="Todas as contas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as contas</SelectItem>
+              {accounts.map(a => (
+                <SelectItem key={a.id} value={a.id}>
+                  {a.account_name || a.ad_account_id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-36 bg-card border-border">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="weekly">Semanal</SelectItem>
+              <SelectItem value="monthly">Mensal</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* List */}
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <LoadingSpinner />
+          </div>
+        ) : filteredReports.length === 0 ? (
+          <EmptyState
+            icon={FileText}
+            title="Nenhum relatório gerado ainda"
+            description="Gere seu primeiro relatório com análise de IA integrada."
+            action={
+              <Button onClick={() => setModalOpen(true)} className="mt-3">
+                <Plus className="h-4 w-4 mr-2" />
+                Gerar primeiro relatório
+              </Button>
+            }
+          />
         ) : (
           <div className="space-y-2">
-            {mockReports.map((report, i) => (
+            {filteredReports.map((report, i) => (
               <div
                 key={report.id}
-                className="card-surface p-4 flex items-center justify-between gap-4 animate-reveal-up"
+                className="card-surface p-4 animate-reveal-up"
                 style={{ animationDelay: `${(i + 1) * 60}ms` }}
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                    <FileText className="h-4 w-4 text-primary" />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+                      <FileText className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground truncate">{report.title || 'Relatório'}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-muted-foreground">
+                          {report.period_start && report.period_end
+                            ? `${new Date(report.period_start).toLocaleDateString('pt-BR')} a ${new Date(report.period_end).toLocaleDateString('pt-BR')}`
+                            : report.created_at ? new Date(report.created_at).toLocaleDateString('pt-BR') : '—'}
+                        </span>
+                        {score(report) !== null && (
+                          <span className="text-xs text-muted-foreground">
+                            · Score: <span className="font-mono font-medium text-foreground">{score(report)}</span>
+                          </span>
+                        )}
+                        {report.white_label_applied && (
+                          <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">White-label</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{report.title}</p>
-                    <p className="text-xs text-muted-foreground">{report.date}</p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <StatusBadge status={statusMap[report.status] || 'warning'} />
+                    {report.status === 'ready' && (
+                      <>
+                        <button
+                          onClick={() => navigate(`/gestor/relatorios/${report.id}`)}
+                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card-hover transition-colors active:scale-95"
+                          title="Visualizar"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDownload(report)}
+                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card-hover transition-colors active:scale-95"
+                          title="Baixar PDF"
+                        >
+                          <Download className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleShare(report.id)}
+                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card-hover transition-colors active:scale-95"
+                          title="Compartilhar"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                    {report.status === 'generating' && (
+                      <Loader2 className="h-4 w-4 animate-spin text-warning" />
+                    )}
+                    {report.status === 'error' && (
+                      <button
+                        className="p-2 rounded-lg text-danger hover:bg-danger/10 transition-colors active:scale-95"
+                        title="Tentar novamente"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <StatusBadge status={report.status} />
-                  {report.status === 'active' && (
-                    <button className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card-hover transition-colors active:scale-95">
-                      <Download className="h-4 w-4" />
-                    </button>
-                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      <GenerateReportModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onGenerated={(id) => navigate(`/gestor/relatorios/${id}`)}
+      />
     </AppShell>
   );
 }
