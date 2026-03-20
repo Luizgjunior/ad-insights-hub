@@ -6,7 +6,8 @@ import AlertBadge from '@/components/ui/AlertBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useGestorMetrics } from '@/hooks/useMetrics';
-import { formatCurrency, formatROAS, formatNumber, getGreeting, getInitials, daysUntil, getPlanLimit } from '@/lib/utils';
+import { usePlan } from '@/hooks/usePlan';
+import { formatCurrency, formatROAS, formatNumber, getGreeting, getInitials, daysUntil } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   DollarSign, TrendingUp, Target, Users,
