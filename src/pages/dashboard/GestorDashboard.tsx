@@ -27,8 +27,8 @@ export default function GestorDashboard() {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   }).format(new Date());
 
-  const trialDays = profile?.plan_expires_at ? daysUntil(profile.plan_expires_at) : null;
-  const maxAccounts = getPlanLimit(profile?.plan);
+  const trialDays = getDaysUntilExpiry();
+  const maxAccounts = getMaxAccounts();
 
   // ROAS color
   const roasColor = totals.roas >= 2.5 ? 'text-success' : totals.roas >= 1.5 ? 'text-warning' : 'text-danger';
