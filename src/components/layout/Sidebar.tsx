@@ -1,12 +1,13 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useLocation, NavLink } from 'react-router-dom';
+import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, BarChart2, Sparkles, FileText,
   Bell, Settings, Home, TrendingUp, HelpCircle, Globe,
-  Building2, DollarSign, LogOut, Zap
+  Building2, DollarSign, LogOut, Zap, AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAlerts } from '@/hooks/useAlerts';
+import { usePlan } from '@/hooks/usePlan';
 
 interface NavItem {
   to: string;
