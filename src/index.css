@@ -104,9 +104,12 @@
   transition: border-color 150ms ease, transform 150ms ease;
 }
 
-.card-surface:hover {
-  border-color: var(--border-hover-val);
-  transform: translateY(-1px);
+/* Cards hover apenas no desktop */
+@media (hover: hover) {
+  .card-surface:hover {
+    border-color: var(--border-hover-val);
+    transform: translateY(-1px);
+  }
 }
 
 /* Subtle grid background */
@@ -126,16 +129,8 @@
 
 /* Animations */
 @keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
+  from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes fade-in {
@@ -144,14 +139,8 @@
 }
 
 @keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes pulse-soft {
@@ -164,6 +153,16 @@
   100% { background-position: 200% 0; }
 }
 
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
 .animate-reveal-up {
   animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -174,6 +173,14 @@
 
 .animate-slide-in-left {
   animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-badge-pulse {
+  animation: badgePulse 2s ease infinite;
+}
+
+.page-enter {
+  animation: pageEnter 200ms ease forwards;
 }
 
 .stagger-1 { animation-delay: 60ms; }
@@ -201,4 +208,56 @@ input, textarea, select {
 /* Badge radius */
 .badge-pill {
   border-radius: 20px;
+}
+
+/* ── Mobile polish ── */
+
+/* Safe area for devices with notch */
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(64px + env(safe-area-inset-bottom));
+}
+
+/* Touch feedback */
+button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Smooth scroll */
+* {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Prevent zoom on inputs iOS */
+@media (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+@media (min-width: 768px) {
+  input, select, textarea {
+    font-size: 14px !important;
+  }
+}
+
+/* Pull-to-refresh */
+.pull-hint {
+  text-align: center;
+  padding: 12px;
+  font-size: 12px;
+  color: hsl(var(--text-muted));
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 200ms;
+}
+.pull-hint.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
 }
