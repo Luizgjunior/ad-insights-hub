@@ -95,7 +95,9 @@ export default function MetaConnection() {
         <div className="flex items-center justify-between animate-reveal-up">
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">Contas Meta Ads</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Gerencie suas contas de anúncio conectadas</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {accounts.length} de {getMaxAccounts()} contas disponíveis no plano {currentPlan?.charAt(0).toUpperCase()}{currentPlan?.slice(1) || 'Trial'}
+            </p>
           </div>
           <Button onClick={() => setShowAddDialog(true)} className="active:scale-[0.97]">
             <Plus className="h-4 w-4" />
