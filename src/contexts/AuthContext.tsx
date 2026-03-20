@@ -1,19 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  role: string;
-  plan: string | null;
-  plan_status: string | null;
-  ai_credits_remaining: number | null;
-  white_label_brand_name: string | null;
-  white_label_logo_url: string | null;
-}
+import type { Profile, UserRole } from '@/types';
 
 interface AuthContextType {
   user: User | null;
@@ -36,10 +24,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase
       .from('profiles')
-      .select('id, email, full_name, avatar_url, role, plan, plan_status, ai_credits_remaining, white_label_brand_name, white_label_logo_url')
+      .select('*')
       .eq('id', userId)
       .single();
-    if (data) setProfile(data as Profile);
+    if (data) {
+      setProfile({
+        id: data.id,
+        email: data.email,
+        full_name: data.full_name || '',
+        avatar_url: data.avatar_url || undefined,
+        role: data.role as UserRole,
+        gestor_id: data.gestor_id || undefined,
+        plan: data.plan as Profile['plan'],
+        plan_status: (data.plan_status || 'trial') as Profile['plan_status'],
+        plan_expires_at: data.plan_expires_at || undefined,
+        cakto_subscription_id: data.cakto_subscription_id || undefined,
+        white_label_brand_name: data.white_label_brand_name || undefined,
+        white_label_logo_url: data.white_label_logo_url || undefined,
+        ai_credits_remaining: data.ai_credits_remaining ?? 50,
+        created_at: data.created_at || '',
+      });
+    }
   };
 
   useEffect(() => {
@@ -76,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, role: 'admin_gestor' },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -97,6 +102,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error('useAuth deve ser usado dentro de AuthProvider');
   return ctx;
 }

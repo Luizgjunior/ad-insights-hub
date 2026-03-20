@@ -2,61 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap');
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
+    /* MetaFlux Dark Theme */
+    --bg-base: 240 33% 5%;
+    --bg-surface: 240 22% 9%;
+    --bg-card: 240 16% 12%;
+    --bg-card-hover: 240 14% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --accent: 214 89% 52%;
+    --accent-hover: 214 82% 46%;
+    --accent-dim: 214 89% 52%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --success: 163 100% 41%;
+    --success-dim: 163 100% 41%;
 
-    --primary: 220 70% 45%;
+    --danger: 354 100% 64%;
+    --danger-dim: 354 100% 64%;
+
+    --warning: 43 100% 50%;
+    --warning-dim: 43 100% 50%;
+
+    --text-primary: 240 33% 97%;
+    --text-secondary: 240 15% 60%;
+    --text-muted: 240 12% 37%;
+
+    --border-val: rgba(255,255,255,0.06);
+    --border-hover-val: rgba(255,255,255,0.12);
+
+    /* shadcn mappings */
+    --background: 240 33% 5%;
+    --foreground: 240 33% 97%;
+
+    --card: 240 16% 12%;
+    --card-foreground: 240 33% 97%;
+
+    --popover: 240 16% 12%;
+    --popover-foreground: 240 33% 97%;
+
+    --primary: 214 89% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 25% 20%;
+    --secondary: 240 22% 9%;
+    --secondary-foreground: 240 33% 97%;
 
-    --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 240 14% 15%;
+    --muted-foreground: 240 15% 60%;
 
-    --accent: 160 60% 40%;
+    --accent: 214 89% 52%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 354 100% 64%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 220 70% 45%;
+    --border: 240 14% 15%;
+    --input: 240 14% 18%;
+    --ring: 214 89% 52%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 220 25% 12%;
-    --sidebar-foreground: 220 15% 85%;
-    --sidebar-primary: 220 70% 55%;
+    --sidebar-background: 240 22% 9%;
+    --sidebar-foreground: 240 15% 60%;
+    --sidebar-primary: 214 89% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 18%;
-    --sidebar-accent-foreground: 220 15% 90%;
-    --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 220 70% 55%;
-
-    /* Custom tokens */
-    --success: 160 60% 40%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
-    --info: 200 80% 50%;
-    --info-foreground: 0 0% 100%;
-
-    --chart-spend: 220 70% 45%;
-    --chart-revenue: 160 60% 40%;
-    --chart-roas: 38 92% 50%;
-    --chart-clicks: 200 80% 50%;
+    --sidebar-accent: 240 14% 15%;
+    --sidebar-accent-foreground: 240 33% 97%;
+    --sidebar-border: 240 14% 15%;
+    --sidebar-ring: 214 89% 52%;
   }
 
   * {
@@ -65,23 +79,52 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   }
 }
 
 @layer utilities {
+  .font-mono-metric {
+    font-family: 'DM Mono', 'Fira Code', monospace;
+  }
   .text-balance {
     text-wrap: balance;
   }
   .text-pretty {
     text-wrap: pretty;
   }
-  .tabular-nums {
-    font-variant-numeric: tabular-nums;
-  }
 }
 
-/* Scroll reveal animation */
+/* Card base styles */
+.card-surface {
+  background: hsl(var(--bg-card));
+  border: 1px solid var(--border-val);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+.card-surface:hover {
+  border-color: var(--border-hover-val);
+  transform: translateY(-1px);
+}
+
+/* Subtle grid background */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(var(--border-val) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-val) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Active sidebar item */
+.nav-item-active {
+  background: hsla(214, 89%, 52%, 0.12);
+  color: hsl(214, 89%, 52%);
+  border-left: 2px solid hsl(214, 89%, 52%);
+}
+
+/* Animations */
 @keyframes reveal-up {
   from {
     opacity: 0;
@@ -111,6 +154,16 @@
   }
 }
 
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .animate-reveal-up {
   animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -129,3 +182,23 @@
 .stagger-4 { animation-delay: 240ms; }
 .stagger-5 { animation-delay: 300ms; }
 .stagger-6 { animation-delay: 360ms; }
+.stagger-7 { animation-delay: 420ms; }
+.stagger-8 { animation-delay: 480ms; }
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, hsl(var(--bg-card)) 25%, hsl(var(--bg-card-hover)) 50%, hsl(var(--bg-card)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Input styling overrides for dark theme */
+input, textarea, select {
+  border-radius: 8px !important;
+}
+
+/* Badge radius */
+.badge-pill {
+  border-radius: 20px;
+}
