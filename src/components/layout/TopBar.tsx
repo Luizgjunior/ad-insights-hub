@@ -4,20 +4,25 @@ import { useAlerts } from '@/hooks/useAlerts';
 
 interface TopBarProps {
   title: string;
+  onOpenAlerts?: () => void;
 }
 
-export default function TopBar({ title }: TopBarProps) {
+export default function TopBar({ title, onOpenAlerts }: TopBarProps) {
   const { profile } = useAuth();
-  const { unreadCount } = useAlerts();
+  const { unreadCount, alerts } = useAlerts();
+  const hasCritical = alerts.some(a => a.severity === 'critical' && !a.is_read);
 
   return (
     <header className="lg:hidden flex items-center justify-between h-14 px-4 bg-surface border-b border-border sticky top-0 z-30">
       <h1 className="text-base font-semibold text-foreground">{title}</h1>
       <div className="flex items-center gap-3">
-        <button className="relative p-2 rounded-lg hover:bg-card-hover transition-colors active:scale-95">
+        <button
+          onClick={onOpenAlerts}
+          className="relative p-2 rounded-lg hover:bg-card-hover transition-colors active:scale-95"
+        >
           <Bell className="h-5 w-5 text-muted-foreground" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white">
+            <span className={`absolute top-1 right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[9px] font-bold text-white ${hasCritical ? 'animate-badge-pulse' : ''}`}>
               {unreadCount}
             </span>
           )}
