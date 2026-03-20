@@ -6,7 +6,8 @@ import AlertBadge from '@/components/ui/AlertBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { useGestorMetrics } from '@/hooks/useMetrics';
-import { formatCurrency, formatROAS, formatNumber, getGreeting, getInitials, daysUntil, getPlanLimit } from '@/lib/utils';
+import { usePlan } from '@/hooks/usePlan';
+import { formatCurrency, formatROAS, formatNumber, getGreeting, getInitials, daysUntil } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   DollarSign, TrendingUp, Target, Users,
@@ -18,6 +19,7 @@ export default function GestorDashboard() {
   const navigate = useNavigate();
   const { alerts } = useAlerts();
   const { accountsWithScore, totals, loading, activeCount } = useGestorMetrics();
+  const { isTrial, getDaysUntilExpiry, getMaxAccounts } = usePlan();
   const unresolvedAlerts = alerts.filter(a => !a.is_resolved).slice(0, 5);
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Gestor';
@@ -25,8 +27,8 @@ export default function GestorDashboard() {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   }).format(new Date());
 
-  const trialDays = profile?.plan_expires_at ? daysUntil(profile.plan_expires_at) : null;
-  const maxAccounts = getPlanLimit(profile?.plan);
+  const trialDays = getDaysUntilExpiry();
+  const maxAccounts = getMaxAccounts();
 
   // ROAS color
   const roasColor = totals.roas >= 2.5 ? 'text-success' : totals.roas >= 1.5 ? 'text-warning' : 'text-danger';
@@ -43,7 +45,7 @@ export default function GestorDashboard() {
         </div>
 
         {/* Trial banner */}
-        {profile?.plan_status === 'trial' && trialDays !== null && trialDays > 0 && (
+        {isTrial && trialDays !== null && trialDays > 0 && (
           <div className="flex items-center gap-3 p-3 rounded-xl bg-warning/10 border border-warning/20 animate-reveal-up" style={{ animationDelay: '60ms' }}>
             <span className="text-sm">🎯</span>
             <p className="text-sm text-foreground flex-1">

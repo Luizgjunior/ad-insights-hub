@@ -1,12 +1,13 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useLocation, NavLink } from 'react-router-dom';
+import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, BarChart2, Sparkles, FileText,
   Bell, Settings, Home, TrendingUp, HelpCircle, Globe,
-  Building2, DollarSign, LogOut, Zap
+  Building2, DollarSign, LogOut, Zap, AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAlerts } from '@/hooks/useAlerts';
+import { usePlan } from '@/hooks/usePlan';
 
 interface NavItem {
   to: string;
@@ -98,6 +99,9 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* Trial banner */}
+      <TrialMini />
+
       {/* User footer */}
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-2.5">
@@ -122,6 +126,31 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+  );
+}
+
+function TrialMini() {
+  const { isTrial, getDaysUntilExpiry } = usePlan();
+  const navigate = useNavigate();
+  const daysLeft = getDaysUntilExpiry();
+
+  if (!isTrial || daysLeft === null) return null;
+
+  return (
+    <div className="mx-3 mb-2 p-2.5 rounded-lg bg-warning/10 border border-warning/20">
+      <div className="flex items-center gap-2 mb-1.5">
+        <AlertCircle className="h-3.5 w-3.5 text-warning shrink-0" />
+        <span className="text-xs font-semibold text-warning">
+          Trial — {daysLeft > 0 ? `${daysLeft} dias` : 'Expirado'}
+        </span>
+      </div>
+      <button
+        onClick={() => navigate('/settings/plano')}
+        className="text-[11px] font-semibold text-primary hover:underline"
+      >
+        Assinar agora →
+      </button>
+    </div>
   );
 }
 
