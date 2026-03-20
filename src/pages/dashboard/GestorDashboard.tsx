@@ -45,7 +45,7 @@ export default function GestorDashboard() {
         </div>
 
         {/* Trial banner */}
-        {profile?.plan_status === 'trial' && trialDays !== null && trialDays > 0 && (
+        {isTrial && trialDays !== null && trialDays > 0 && (
           <div className="flex items-center gap-3 p-3 rounded-xl bg-warning/10 border border-warning/20 animate-reveal-up" style={{ animationDelay: '60ms' }}>
             <span className="text-sm">🎯</span>
             <p className="text-sm text-foreground flex-1">
