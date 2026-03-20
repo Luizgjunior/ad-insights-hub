@@ -45,6 +45,9 @@ function DefaultRedirect() {
 }
 
 function AppRoutes() {
+  const { loading } = useAuth();
+  if (loading) return <GlobalLoader />;
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
