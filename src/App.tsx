@@ -24,6 +24,9 @@ import MetaConnection from '@/pages/settings/MetaConnection';
 import PlanSettings from '@/pages/settings/Plan';
 import GlobalMetrics from '@/pages/admin/GlobalMetrics';
 import TenantsList from '@/pages/admin/TenantsList';
+import ApiCosts from '@/pages/admin/ApiCosts';
+import AdminLogs from '@/pages/admin/AdminLogs';
+import AdminSettings from '@/pages/admin/AdminSettings';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({

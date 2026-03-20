@@ -24,8 +24,9 @@ function useNavItems(): NavItem[] {
     return [
       { to: '/admin', icon: Globe, label: 'Overview' },
       { to: '/admin/tenants', icon: Building2, label: 'Tenants' },
-      { to: '/admin/receita', icon: DollarSign, label: 'Receita' },
-      { to: '/settings', icon: Settings, label: 'Configurações' },
+      { to: '/admin/custos', icon: DollarSign, label: 'Custo API' },
+      { to: '/admin/logs', icon: AlertCircle, label: 'Logs' },
+      { to: '/admin/settings', icon: Settings, label: 'Configurações' },
     ];
   }
 
