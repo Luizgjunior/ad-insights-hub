@@ -12,6 +12,7 @@ import Onboarding from '@/pages/onboarding/Onboarding';
 import GestorDashboard from '@/pages/dashboard/GestorDashboard';
 import GestorClientDetail from '@/pages/dashboard/GestorClientDetail';
 import ClientDashboard from '@/pages/dashboard/ClientDashboard';
+import AiCenter from '@/pages/ai/AiCenter';
 import AdminDashboard from '@/pages/dashboard/AdminDashboard';
 import CampaignsList from '@/pages/campaigns/CampaignsList';
 import AlertsList from '@/pages/alerts/AlertsList';
@@ -56,6 +57,7 @@ function AppRoutes() {
       <Route path="/gestor/campanhas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><CampaignsList /></ProtectedRoute>} />
       <Route path="/gestor/alertas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><AlertsList /></ProtectedRoute>} />
       <Route path="/gestor/relatorios" element={<ProtectedRoute allowedRoles={['admin_gestor', 'usuario_cliente']}><ReportsList /></ProtectedRoute>} />
+      <Route path="/gestor/ia" element={<ProtectedRoute allowedRoles={['admin_gestor']}><AiCenter /></ProtectedRoute>} />
 
       <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['usuario_cliente']}><ClientDashboard /></ProtectedRoute>} />
 
