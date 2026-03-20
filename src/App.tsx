@@ -10,6 +10,7 @@ import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import Onboarding from "@/pages/onboarding/Onboarding";
 import GestorDashboard from "@/pages/dashboard/GestorDashboard";
+import GestorClientDetail from "@/pages/dashboard/GestorClientDetail";
 import ClientDashboard from "@/pages/dashboard/ClientDashboard";
 import AdminDashboard from "@/pages/dashboard/AdminDashboard";
 import CampaignsList from "@/pages/campaigns/CampaignsList";
@@ -41,7 +42,6 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
   if (!user) return <Navigate to="/login" replace />;
 
   if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
-    // Redirect to appropriate dashboard
     if (profile.role === 'admin_global') return <Navigate to="/admin" replace />;
     if (profile.role === 'usuario_cliente') return <Navigate to="/dashboard" replace />;
     return <Navigate to="/gestor" replace />;
@@ -73,6 +73,7 @@ const AppRoutes = () => (
 
     {/* Gestor routes */}
     <Route path="/gestor" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorDashboard /></ProtectedRoute>} />
+    <Route path="/gestor/cliente/:id" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorClientDetail /></ProtectedRoute>} />
     <Route path="/gestor/campanhas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><CampaignsList /></ProtectedRoute>} />
     <Route path="/gestor/alertas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><AlertsList /></ProtectedRoute>} />
     <Route path="/gestor/relatorios" element={<ProtectedRoute allowedRoles={['admin_gestor', 'usuario_cliente']}><ReportsList /></ProtectedRoute>} />
