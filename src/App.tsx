@@ -17,6 +17,7 @@ import AdminDashboard from '@/pages/dashboard/AdminDashboard';
 import CampaignsList from '@/pages/campaigns/CampaignsList';
 import AlertsList from '@/pages/alerts/AlertsList';
 import ReportsList from '@/pages/reports/ReportsList';
+import ReportView from '@/pages/reports/ReportView';
 import ProfileSettings from '@/pages/settings/Profile';
 import MetaConnection from '@/pages/settings/MetaConnection';
 import PlanSettings from '@/pages/settings/Plan';
