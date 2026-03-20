@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import GlobalLoader from '@/components/ui/GlobalLoader';
 
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
