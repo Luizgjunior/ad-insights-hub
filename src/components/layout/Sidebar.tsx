@@ -99,6 +99,9 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* Trial banner */}
+      <TrialMini />
+
       {/* User footer */}
       <div className="border-t border-border p-3">
         <div className="flex items-center gap-2.5">
