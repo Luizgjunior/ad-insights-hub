@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['"DM Mono"', '"Fira Code"', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,16 +53,21 @@ export default {
         },
         success: {
           DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
+          foreground: "hsl(0 0% 100%)",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
+          foreground: "hsl(0 0% 100%)",
         },
-        info: {
-          DEFAULT: "hsl(var(--info))",
-          foreground: "hsl(var(--info-foreground))",
+        danger: {
+          DEFAULT: "hsl(var(--danger))",
+          foreground: "hsl(0 0% 100%)",
         },
+        meta: {
+          blue: "#1877F2",
+        },
+        surface: "hsl(var(--bg-surface))",
+        "card-hover": "hsl(var(--bg-card-hover))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -77,6 +83,13 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        card: "12px",
+        input: "8px",
+        badge: "20px",
+      },
+      boxShadow: {
+        card: "0 4px 24px rgba(0,0,0,0.4)",
+        "card-hover": "0 8px 32px rgba(0,0,0,0.5)",
       },
       keyframes: {
         "accordion-down": {
