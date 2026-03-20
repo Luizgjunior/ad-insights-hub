@@ -12,6 +12,7 @@ import Onboarding from '@/pages/onboarding/Onboarding';
 import GestorDashboard from '@/pages/dashboard/GestorDashboard';
 import GestorClientDetail from '@/pages/dashboard/GestorClientDetail';
 import ClientDashboard from '@/pages/dashboard/ClientDashboard';
+import AiCenter from '@/pages/ai/AiCenter';
 import AdminDashboard from '@/pages/dashboard/AdminDashboard';
 import CampaignsList from '@/pages/campaigns/CampaignsList';
 import AlertsList from '@/pages/alerts/AlertsList';
