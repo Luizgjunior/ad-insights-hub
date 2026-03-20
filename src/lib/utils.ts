@@ -64,3 +64,14 @@ export function getPeriodDates(period: 'today' | 'week' | 'month'): { start: str
     end: end.toISOString().split('T')[0],
   };
 }
+
+export function getGreeting(firstName: string): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return `Bom dia, ${firstName}! 👋`;
+  if (hour >= 12 && hour < 18) return `Boa tarde, ${firstName}! 👋`;
+  return `Boa noite, ${firstName}! 👋`;
+}
+
+export function getInitials(name: string): string {
+  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+}

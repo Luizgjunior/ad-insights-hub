@@ -65,10 +65,14 @@ export default function Register() {
           <span className="text-xl font-bold text-foreground">MetaFlux</span>
         </div>
 
+        <div className="rounded-xl bg-warning/10 border border-warning/20 px-4 py-3 mb-4 text-center">
+          <p className="text-sm text-foreground">🎯 7 dias de trial gratuito no plano Pro</p>
+        </div>
+
         <div className="card-surface p-8">
           <h2 className="text-lg font-bold text-foreground text-center mb-1">Criar sua conta</h2>
           <p className="text-sm text-muted-foreground text-center mb-6">
-            Você tem 7 dias de trial gratuito para explorar o Pro.
+            Comece a gerenciar suas campanhas Meta com IA
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
