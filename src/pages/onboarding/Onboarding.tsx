@@ -46,11 +46,11 @@ export default function Onboarding() {
   const [clientEmail, setClientEmail] = useState('');
   const [inviting, setInviting] = useState(false);
 
-  if (profile?.role === 'admin_global') return <Navigate to="/admin" replace />;
-
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(currentStep));
   }, [currentStep]);
+
+  if (profile?.role === 'admin_global') return <Navigate to="/admin" replace />;
 
   const goNext = () => {
     setDirection('next');
