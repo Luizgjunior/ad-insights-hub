@@ -23,7 +23,7 @@ export default function BottomNav() {
       ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around h-16 bg-surface border-t border-border">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around bg-surface border-t border-border bottom-nav">
       {items.map(({ to, icon: Icon, label }) => {
         const isActive = location.pathname === to;
         return (
