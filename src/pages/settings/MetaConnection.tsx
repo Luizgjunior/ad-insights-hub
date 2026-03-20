@@ -32,6 +32,7 @@ function TokenStatus({ expiresAt }: { expiresAt: string | null }) {
 export default function MetaConnection() {
   const { user } = useAuth();
   const { accounts, loading, refetch } = useMetaAccounts();
+  const { getMaxAccounts, currentPlan } = usePlan();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
