@@ -24,6 +24,9 @@ import MetaConnection from '@/pages/settings/MetaConnection';
 import PlanSettings from '@/pages/settings/Plan';
 import GlobalMetrics from '@/pages/admin/GlobalMetrics';
 import TenantsList from '@/pages/admin/TenantsList';
+import ApiCosts from '@/pages/admin/ApiCosts';
+import AdminLogs from '@/pages/admin/AdminLogs';
+import AdminSettings from '@/pages/admin/AdminSettings';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({
@@ -71,6 +74,9 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin_global']}><AdminDashboard /></ProtectedRoute>} />
       <Route path="/admin/tenants" element={<ProtectedRoute allowedRoles={['admin_global']}><TenantsList /></ProtectedRoute>} />
       <Route path="/admin/metricas" element={<ProtectedRoute allowedRoles={['admin_global']}><GlobalMetrics /></ProtectedRoute>} />
+      <Route path="/admin/custos" element={<ProtectedRoute allowedRoles={['admin_global']}><ApiCosts /></ProtectedRoute>} />
+      <Route path="/admin/logs" element={<ProtectedRoute allowedRoles={['admin_global']}><AdminLogs /></ProtectedRoute>} />
+      <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin_global']}><AdminSettings /></ProtectedRoute>} />
 
       <Route path="/settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
       <Route path="/settings/meta" element={<ProtectedRoute><MetaConnection /></ProtectedRoute>} />
