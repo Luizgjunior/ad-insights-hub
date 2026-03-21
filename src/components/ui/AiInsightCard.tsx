@@ -1,102 +1,85 @@
-import type { AiAnalysis } from '@/types';
-import { Sparkles, TrendingUp, Lightbulb, AlertTriangle, Clock } from 'lucide-react';
+import { Sparkles, ChevronRight } from 'lucide-react'
+import type { AiAnalysis } from '@/types'
 
 interface AiInsightCardProps {
-  analysis: AiAnalysis;
-  compact?: boolean;
-  showCost?: boolean;
+  analysis?: AiAnalysis
+  compact?: boolean
+  loading?: boolean
 }
 
-function ScoreGauge({ score }: { score: number }) {
-  const color = score >= 80 ? 'text-success' : score >= 50 ? 'text-warning' : 'text-danger';
-  const bgColor = score >= 80 ? 'bg-success/20' : score >= 50 ? 'bg-warning/20' : 'bg-danger/20';
-  const label = score >= 80 ? 'Excelente' : score >= 60 ? 'Bom' : score >= 40 ? 'Regular' : 'Crítico';
-
-  return (
-    <div className="flex items-center gap-3">
-      <div className={`flex h-14 w-14 items-center justify-center rounded-full ${bgColor}`}>
-        <span className={`text-lg font-bold font-mono ${color}`}>{score}</span>
+export default function AiInsightCard({ analysis, compact, loading }: AiInsightCardProps) {
+  if (loading) {
+    return (
+      <div className="ai-card p-4 space-y-3">
+        <div className="skeleton h-3 w-32 rounded" />
+        <div className="skeleton h-3 w-full rounded" />
+        <div className="skeleton h-3 w-4/5 rounded" />
       </div>
-      <div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                score >= 80 ? 'bg-success' : score >= 50 ? 'bg-warning' : 'bg-danger'
-              }`}
-              style={{ width: `${score}%` }}
-            />
-          </div>
-          <span className={`text-xs font-semibold ${color}`}>{label}</span>
-        </div>
-        <span className="text-[10px] text-muted-foreground">Score de performance</span>
-      </div>
-    </div>
-  );
-}
+    )
+  }
 
-export default function AiInsightCard({ analysis, compact = false, showCost = false }: AiInsightCardProps) {
-  const insights = (analysis.insights as any) || {};
-  const score = insights.score ?? 50;
-  const insightList: string[] = insights.insights || [];
-  const suggestions: string[] = insights.suggestions || [];
-  const alerts: string[] = insights.alerts || [];
-  const createdAt = analysis.created_at ? new Date(analysis.created_at) : null;
+  const score = analysis?.insights?.score ?? 0
+  const scoreColor = score >= 80 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)'
 
   if (compact) {
     return (
-      <div className="card-surface p-4 border-l-2 border-primary">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-          <span className="text-xs font-semibold text-primary uppercase tracking-wider">Análise IA</span>
-        </div>
-        <p className="text-sm text-foreground leading-relaxed">{analysis.summary_text || 'Sem resumo disponível.'}</p>
-        {insightList.slice(0, 2).map((item, i) => (
-          <div key={i} className="flex items-start gap-2 mt-2">
-            <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-            <span className="text-xs text-muted-foreground">{item}</span>
-          </div>
-        ))}
-        {createdAt && (
-          <div className="flex items-center gap-1 mt-3">
-            <Clock className="h-3 w-3 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground">
-              Atualizado em {createdAt.toLocaleDateString('pt-BR')} às {createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+      <div className="ai-card p-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <Sparkles size={14} className="icon-sparkle" />
+          <span className="section-title">Análise IA</span>
+          {score > 0 && (
+            <span style={{
+              marginLeft: 'auto',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 12,
+              fontWeight: 500,
+              color: scoreColor,
+            }}>
+              {score}/100
             </span>
+          )}
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          {analysis?.summary_text ?? 'Análise em processamento...'}
+        </p>
+      </div>
+    )
+  }
+
+  const insights     = analysis?.insights?.insights ?? []
+  const suggestions  = analysis?.insights?.suggestions ?? []
+  const alerts       = analysis?.insights?.alerts ?? []
+
+  return (
+    <div className="ai-card p-4 space-y-4">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Sparkles size={15} className="icon-sparkle" />
+          <span className="section-title" style={{ marginBottom: 0 }}>Inteligência IA</span>
+        </div>
+        {score > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div className="score-bar" style={{ width: 60 }}>
+              <div className="score-bar-fill" style={{ width: `${score}%`, background: scoreColor }} />
+            </div>
+            <span className="font-mono-metric" style={{ fontSize: 12, color: scoreColor }}>{score}</span>
           </div>
         )}
       </div>
-    );
-  }
 
-  return (
-    <div className="card-surface p-5 space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <span className="text-sm font-semibold text-foreground">
-            Análise {analysis.analysis_type === 'daily' ? 'Diária' : analysis.analysis_type === 'weekly' ? 'Semanal' : 'IA'}
-          </span>
-        </div>
-        <ScoreGauge score={score} />
-      </div>
-
-      {analysis.summary_text && (
-        <p className="text-sm text-muted-foreground bg-card/50 rounded-lg p-3 border border-border">
+      {analysis?.summary_text && (
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, borderLeft: '2px solid var(--accent)', paddingLeft: 10 }}>
           {analysis.summary_text}
         </p>
       )}
 
-      {insightList.length > 0 && (
+      {insights.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights</span>
-          </div>
-          {insightList.map((item, i) => (
-            <div key={i} className="flex items-start gap-2 py-1">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-              <span className="text-sm text-muted-foreground">{item}</span>
+          <div className="section-title" style={{ marginBottom: 6 }}>Insights</div>
+          {insights.map((ins, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+              <ChevronRight size={12} style={{ flexShrink: 0, marginTop: 2, color: 'var(--accent)' }} />
+              {ins}
             </div>
           ))}
         </div>
@@ -104,14 +87,11 @@ export default function AiInsightCard({ analysis, compact = false, showCost = fa
 
       {suggestions.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Lightbulb className="h-4 w-4 text-warning" />
-            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Sugestões</span>
-          </div>
-          {suggestions.map((item, i) => (
-            <div key={i} className="flex items-start gap-2 py-1">
-              <div className="h-1.5 w-1.5 rounded-full bg-warning mt-1.5 shrink-0" />
-              <span className="text-sm text-muted-foreground">{item}</span>
+          <div className="section-title" style={{ marginBottom: 6 }}>Recomendações</div>
+          {suggestions.map((sug, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, fontSize: 12, color: 'var(--text-secondary)' }}>
+              <ChevronRight size={12} style={{ flexShrink: 0, marginTop: 2, color: 'var(--success)' }} />
+              {sug}
             </div>
           ))}
         </div>
@@ -119,34 +99,15 @@ export default function AiInsightCard({ analysis, compact = false, showCost = fa
 
       {alerts.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-4 w-4 text-danger" />
-            <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Alertas</span>
-          </div>
-          {alerts.map((item, i) => (
-            <div key={i} className="flex items-start gap-2 py-1">
-              <div className="h-1.5 w-1.5 rounded-full bg-danger mt-1.5 shrink-0" />
-              <span className="text-sm text-muted-foreground">{item}</span>
+          <div className="section-title" style={{ marginBottom: 6, color: 'var(--danger)' }}>Alertas</div>
+          {alerts.map((alt, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4, fontSize: 12, color: '#fca5a5' }}>
+              <div className="dot-pulse" style={{ marginTop: 4 }} />
+              {alt}
             </div>
           ))}
         </div>
       )}
-
-      <div className="flex items-center justify-between pt-2 border-t border-border">
-        <div className="flex items-center gap-1">
-          <Clock className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[10px] text-muted-foreground">
-            {createdAt
-              ? `${createdAt.toLocaleDateString('pt-BR')} às ${createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
-              : '—'}
-          </span>
-        </div>
-        {showCost && (
-          <span className="text-[10px] text-muted-foreground font-mono">
-            {analysis.model_used || '—'} · {analysis.cost_usd !== undefined ? `US$ ${analysis.cost_usd.toFixed(4)}` : 'Grátis'}
-          </span>
-        )}
-      </div>
     </div>
-  );
+  )
 }
