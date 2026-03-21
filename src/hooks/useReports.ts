@@ -121,8 +121,10 @@ export function useReports(metaAccountId?: string) {
   }
 
   async function deleteReport(reportId: string) {
-    // Reports table doesn't have DELETE policy, but we can update status
-    toast.error('Funcionalidade em desenvolvimento.')
+    const { error } = await supabase.from('reports').delete().eq('id', reportId)
+    if (error) { toast.error('Erro ao excluir relatório.'); return }
+    toast.success('Relatório excluído!')
+    await fetchReports()
   }
 
   return { reports, loading, fetchReports, generateReport, deleteReport }
