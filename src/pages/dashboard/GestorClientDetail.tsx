@@ -8,15 +8,22 @@ import AlertBadge from '@/components/ui/AlertBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { formatCurrency, formatROAS, formatNumber } from '@/lib/utils';
-import { getCampaigns, syncMetrics } from '@/lib/metaApi';
+import { getCampaigns, syncMetrics, validateAndSaveMetaAccount } from '@/lib/metaApi';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import {
   ArrowLeft, DollarSign, TrendingUp, Target, Eye,
-  BarChart2, Sparkles, FileText, Bell, RefreshCw, Loader2, UserCircle
+  BarChart2, Sparkles, FileText, Bell, RefreshCw, Loader2, UserCircle,
+  Plus, Shield, Eye as EyeIcon, EyeOff, ChevronDown, ExternalLink, AlertCircle, Trash2
 } from 'lucide-react';
 
 interface ClientMetaAccount {
