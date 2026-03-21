@@ -70,6 +70,7 @@ function AppRoutes() {
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
         <Route path="/gestor" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorDashboard /></ProtectedRoute>} />
+        <Route path="/gestor/clientes" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorClients /></ProtectedRoute>} />
         <Route path="/gestor/cliente/:id" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorClientDetail /></ProtectedRoute>} />
         <Route path="/gestor/campanhas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><CampaignsList /></ProtectedRoute>} />
         <Route path="/gestor/alertas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><AlertsList /></ProtectedRoute>} />
