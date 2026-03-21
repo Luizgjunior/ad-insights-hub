@@ -247,7 +247,24 @@ export default function MetaConnection() {
                 />
               </div>
 
-              {connectError && (
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">Vincular ao cliente *</Label>
+                <Select value={selectedClientId} onValueChange={(v) => { setSelectedClientId(v); setConnectError(''); }}>
+                  <SelectTrigger className="h-10 bg-background border-border">
+                    <SelectValue placeholder="Selecione um cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clientsList.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.full_name || c.email}
+                      </SelectItem>
+                    ))}
+                    {clientsList.length === 0 && (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">Nenhum cliente cadastrado</div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
                 <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
                   <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                   <p className="text-sm text-destructive">{connectError}</p>
