@@ -1,54 +1,51 @@
-import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { cn, getTrendColor } from '@/lib/utils';
+import { LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface MetricCardProps {
-  label: string;
-  value: string;
-  trend?: number;
-  trendLabel?: string;
-  icon?: LucideIcon;
-  color?: string;
-  delay?: number;
-}
-
-export default function MetricCard({ label, value, trend, trendLabel, icon: Icon, delay = 0 }: MetricCardProps) {
-  const TrendIcon = trend === undefined || trend === 0 ? Minus : trend > 0 ? TrendingUp : TrendingDown;
-
-  return (
-    <div
-      className="card-surface p-4 animate-reveal-up group"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <div className="flex items-center justify-between mb-2.5">
-        <span className="text-[11px] font-medium uppercase tracking-[0.5px] text-muted-foreground">
-          {label}
-        </span>
-        {Icon && (
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
-            <Icon className="h-3.5 w-3.5 text-primary" />
-          </div>
-        )}
-      </div>
-      <p className="text-[28px] font-semibold font-mono-metric text-foreground leading-none">
-        {value}
-      </p>
-      {trend !== undefined && (
-        <div className={cn('flex items-center gap-1.5 mt-2 text-xs font-medium', getTrendColor(trend))}>
-          <TrendIcon className="h-3 w-3" />
-          <span className="font-mono-metric">{Math.abs(trend).toFixed(1)}%</span>
-          {trendLabel && <span className="text-muted-foreground font-normal">{trendLabel}</span>}
-        </div>
-      )}
-    </div>
-  );
+  label: string
+  value: string
+  trend?: number
+  trendLabel?: string
+  icon?: LucideIcon
+  loading?: boolean
+  className?: string
+  delay?: number
 }
 
 export function MetricCardSkeleton() {
   return (
-    <div className="card-surface p-4">
-      <div className="skeleton h-3 w-20 mb-4" />
-      <div className="skeleton h-7 w-28 mb-2" />
-      <div className="skeleton h-3 w-16" />
+    <div className="card-surface p-4 space-y-3">
+      <div className="skeleton h-3 w-20 rounded" />
+      <div className="skeleton h-6 w-28 rounded" />
+      <div className="skeleton h-2.5 w-16 rounded" />
     </div>
-  );
+  )
+}
+
+export default function MetricCard({
+  label, value, trend, trendLabel, icon: Icon, loading, className, delay
+}: MetricCardProps) {
+  if (loading) return <MetricCardSkeleton />
+
+  const trendClass = trend == null ? '' : trend > 0 ? 'up' : trend < 0 ? 'down' : 'flat'
+  const trendSign  = trend != null && trend > 0 ? '+' : ''
+
+  return (
+    <div
+      className={cn('card-surface p-4 space-y-2 animate-reveal-up', className)}
+      style={delay ? { animationDelay: `${delay}ms` } : undefined}
+    >
+      <div className="flex items-center justify-between">
+        <span className="metric-label">{label}</span>
+        {Icon && <Icon size={14} style={{ color: 'var(--text-tertiary)' }} />}
+      </div>
+      <div className="metric-value">{value}</div>
+      {trend != null && (
+        <div className={`metric-trend ${trendClass}`}>
+          {trendSign}{Math.abs(trend).toFixed(1)}%
+          {trendLabel && <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}> {trendLabel}</span>}
+        </div>
+      )}
+    </div>
+  )
 }
