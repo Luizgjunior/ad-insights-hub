@@ -4,6 +4,8 @@ import { useMetaAccounts } from '@/hooks/useMetaAccounts';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateAndSaveMetaAccount } from '@/lib/metaApi';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { daysUntil } from '@/lib/utils';
 import { usePlan } from '@/hooks/usePlan';
 import { Button } from '@/components/ui/button';
@@ -37,10 +39,27 @@ export default function MetaConnection() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
+  // Client list for selector
+  const { data: clientsList = [] } = useQuery({
+    queryKey: ['gestor-clients-list', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('gestor_id', user.id)
+        .eq('role', 'usuario_cliente')
+        .order('full_name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   // Add form state
   const [metaToken, setMetaToken] = useState('');
   const [showToken, setShowToken] = useState(false);
   const [adAccountId, setAdAccountId] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState('');
 
@@ -50,11 +69,12 @@ export default function MetaConnection() {
     setShowToken(false);
     setConnectError('');
     setConnecting(false);
+    setSelectedClientId('');
   };
 
   const handleConnect = async () => {
-    if (!metaToken.trim() || !adAccountId.trim()) {
-      setConnectError('Preencha o token e o ID da conta.');
+    if (!metaToken.trim() || !adAccountId.trim() || !selectedClientId) {
+      setConnectError('Preencha todos os campos obrigatórios.');
       return;
     }
     if (!user) return;
@@ -63,7 +83,7 @@ export default function MetaConnection() {
     setConnectError('');
 
     const formattedId = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
-    const result = await validateAndSaveMetaAccount(metaToken.trim(), formattedId, user.id, user.id);
+    const result = await validateAndSaveMetaAccount(metaToken.trim(), formattedId, user.id, selectedClientId);
 
     setConnecting(false);
 
@@ -227,6 +247,24 @@ export default function MetaConnection() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">Vincular ao cliente *</Label>
+                <Select value={selectedClientId} onValueChange={(v) => { setSelectedClientId(v); setConnectError(''); }}>
+                  <SelectTrigger className="h-10 bg-background border-border">
+                    <SelectValue placeholder="Selecione um cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clientsList.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.full_name || c.email}
+                      </SelectItem>
+                    ))}
+                    {clientsList.length === 0 && (
+                      <div className="px-3 py-2 text-sm text-muted-foreground">Nenhum cliente cadastrado</div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
               {connectError && (
                 <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
                   <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />

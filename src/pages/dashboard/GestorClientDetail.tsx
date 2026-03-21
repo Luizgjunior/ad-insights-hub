@@ -8,15 +8,22 @@ import AlertBadge from '@/components/ui/AlertBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlerts } from '@/hooks/useAlerts';
 import { formatCurrency, formatROAS, formatNumber } from '@/lib/utils';
-import { getCampaigns, syncMetrics } from '@/lib/metaApi';
+import { getCampaigns, syncMetrics, validateAndSaveMetaAccount } from '@/lib/metaApi';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import {
   ArrowLeft, DollarSign, TrendingUp, Target, Eye,
-  BarChart2, Sparkles, FileText, Bell, RefreshCw, Loader2, UserCircle
+  BarChart2, Sparkles, FileText, Bell, RefreshCw, Loader2, UserCircle,
+  Plus, Shield, Eye as EyeIcon, EyeOff, ChevronDown, ExternalLink, AlertCircle, Trash2
 } from 'lucide-react';
 
 interface ClientMetaAccount {
@@ -36,6 +43,12 @@ export default function GestorClientDetail() {
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
   const [syncing, setSyncing] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [metaToken, setMetaToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
+  const [adAccountId, setAdAccountId] = useState('');
+  const [connecting, setConnecting] = useState(false);
+  const [connectError, setConnectError] = useState('');
   const { alerts } = useAlerts();
 
   // Fetch client profile
@@ -166,6 +179,33 @@ export default function GestorClientDetail() {
     }
   }, [accounts, queryClient]);
 
+  const handleLinkMeta = async () => {
+    if (!metaToken.trim() || !adAccountId.trim() || !user || !clientId) {
+      setConnectError('Preencha todos os campos.');
+      return;
+    }
+    setConnecting(true);
+    setConnectError('');
+    const formattedId = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
+    const result = await validateAndSaveMetaAccount(metaToken.trim(), formattedId, user.id, clientId);
+    setConnecting(false);
+    if (!result.success) {
+      setConnectError(result.error || 'Erro ao conectar.');
+      return;
+    }
+    toast.success(`✓ Conta ${result.accountName || formattedId} vinculada ao cliente!`);
+    setMetaToken(''); setAdAccountId(''); setShowToken(false); setConnectError('');
+    setLinkOpen(false);
+    queryClient.invalidateQueries({ queryKey: ['client-meta-accounts', clientId] });
+  };
+
+  const handleUnlinkAccount = async (accId: string) => {
+    const { error } = await supabase.from('meta_accounts').delete().eq('id', accId);
+    if (error) { toast.error('Erro ao desvincular.'); return; }
+    toast.success('Conta desvinculada.');
+    queryClient.invalidateQueries({ queryKey: ['client-meta-accounts', clientId] });
+  };
+
   return (
     <AppShell title={client?.full_name || 'Detalhes do Cliente'}>
       <div className="p-5 lg:p-8 space-y-6 max-w-5xl">
@@ -203,6 +243,37 @@ export default function GestorClientDetail() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Linked Meta Accounts */}
+        <div className="card-surface p-4 animate-reveal-up" style={{ animationDelay: '60ms' }}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              Contas Meta vinculadas ({accounts.length})
+            </h3>
+            <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)} className="gap-1.5 border-border">
+              <Plus className="h-3.5 w-3.5" />
+              Vincular conta
+            </Button>
+          </div>
+          {accounts.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Nenhuma conta Meta vinculada. Clique em "Vincular conta" para adicionar.</p>
+          ) : (
+            <div className="space-y-2">
+              {accounts.map(acc => (
+                <div key={acc.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{acc.account_name || acc.ad_account_id}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{acc.ad_account_id}</p>
+                  </div>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleUnlinkAccount(acc.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Metrics */}
@@ -334,6 +405,73 @@ export default function GestorClientDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Link Meta Account Dialog */}
+      <Dialog open={linkOpen} onOpenChange={(open) => { setLinkOpen(open); if (!open) { setMetaToken(''); setAdAccountId(''); setShowToken(false); setConnectError(''); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Vincular conta Meta Ads</DialogTitle>
+            <DialogDescription>Conecte uma conta de anúncios a este cliente.</DialogDescription>
+          </DialogHeader>
+
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+              <ChevronDown className="h-4 w-4" />
+              Como obter seu token?
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3 p-3 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground space-y-1.5">
+              <p>1. Acesse o <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">Explorador da Graph API <ExternalLink className="h-3 w-3" /></a></p>
+              <p>2. Gere um token com: <code className="font-mono text-xs bg-background px-1 rounded">ads_read</code>, <code className="font-mono text-xs bg-background px-1 rounded">ads_management</code>, <code className="font-mono text-xs bg-background px-1 rounded">read_insights</code></p>
+              <p>3. Copie o token e cole abaixo</p>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <div className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">Token de acesso Meta *</Label>
+              <div className="relative">
+                <Input
+                  type={showToken ? 'text' : 'password'}
+                  value={metaToken}
+                  onChange={(e) => { setMetaToken(e.target.value); setConnectError(''); }}
+                  placeholder="EAAxxxxxxxxx..."
+                  className="h-10 bg-background border-border pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowToken(!showToken)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showToken ? <EyeOff className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">ID da conta de anúncios *</Label>
+              <Input
+                value={adAccountId}
+                onChange={(e) => { setAdAccountId(e.target.value); setConnectError(''); }}
+                placeholder="act_528114338445986"
+                className="h-10 bg-background border-border"
+              />
+            </div>
+            {connectError && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive">{connectError}</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button className="w-full active:scale-[0.97]" onClick={handleLinkMeta} disabled={connecting}>
+              {connecting ? (
+                <><Loader2 className="h-4 w-4 animate-spin" />Validando token...</>
+              ) : 'Validar e vincular'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
