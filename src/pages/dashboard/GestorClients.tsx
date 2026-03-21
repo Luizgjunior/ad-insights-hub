@@ -133,20 +133,20 @@ export default function GestorClients() {
     }
   }
 
-  async function handleInvite() {
-    if (!inviteEmail.trim() || !user) return;
+  async function handleCreate() {
+    if (!newEmail.trim() || !newPassword.trim() || !user) return;
     setSaving(true);
     try {
       const { error } = await supabase.functions.invoke('invite-client', {
-        body: { email: inviteEmail.trim(), gestorId: user.id },
+        body: { action: 'create_client', email: newEmail.trim(), password: newPassword, fullName: newName.trim(), gestorId: user.id },
       });
       if (error) throw error;
-      toast.success('Convite enviado!');
-      setInviteOpen(false);
-      setInviteEmail('');
+      toast.success('Cliente criado com sucesso!');
+      setCreateOpen(false);
+      setNewName(''); setNewEmail(''); setNewPassword('');
       queryClient.invalidateQueries({ queryKey: ['gestor-clients'] });
-    } catch {
-      toast.error('Erro ao convidar cliente.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Erro ao criar cliente.');
     } finally {
       setSaving(false);
     }
