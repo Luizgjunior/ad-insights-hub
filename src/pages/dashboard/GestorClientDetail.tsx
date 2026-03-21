@@ -245,6 +245,37 @@ export default function GestorClientDetail() {
           </div>
         </div>
 
+        {/* Linked Meta Accounts */}
+        <div className="card-surface p-4 animate-reveal-up" style={{ animationDelay: '60ms' }}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              Contas Meta vinculadas ({accounts.length})
+            </h3>
+            <Button size="sm" variant="outline" onClick={() => setLinkOpen(true)} className="gap-1.5 border-border">
+              <Plus className="h-3.5 w-3.5" />
+              Vincular conta
+            </Button>
+          </div>
+          {accounts.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Nenhuma conta Meta vinculada. Clique em "Vincular conta" para adicionar.</p>
+          ) : (
+            <div className="space-y-2">
+              {accounts.map(acc => (
+                <div key={acc.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{acc.account_name || acc.ad_account_id}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{acc.ad_account_id}</p>
+                  </div>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleUnlinkAccount(acc.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Metrics */}
         {metricsLoading ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
