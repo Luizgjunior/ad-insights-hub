@@ -72,33 +72,67 @@ Deno.serve(async (req) => {
     const formatROAS = (v: number) => `${v.toFixed(1)}×`;
     const formatPct = (v: number) => `${v.toFixed(1)}%`;
 
-    const prompt = `Escreva uma narrativa profissional para um relatório de campanhas Meta Ads.
+    const trendSpend = reportData.previousMetrics?.spend
+      ? (((reportData.metrics.spend - reportData.previousMetrics.spend) / reportData.previousMetrics.spend) * 100).toFixed(1)
+      : null;
+    const trendLeads = reportData.previousMetrics?.leads
+      ? (((reportData.metrics.leads - reportData.previousMetrics.leads) / reportData.previousMetrics.leads) * 100).toFixed(1)
+      : null;
+    const trendRoas = reportData.previousMetrics?.roas
+      ? (((reportData.metrics.roas - reportData.previousMetrics.roas) / reportData.previousMetrics.roas) * 100).toFixed(1)
+      : null;
 
-AGÊNCIA: ${reportData.agencyName}
-CLIENTE: ${reportData.accountName}
-PERÍODO: ${reportData.period}
+    const cpl = reportData.metrics.leads > 0
+      ? formatBRL(reportData.metrics.spend / reportData.metrics.leads)
+      : 'Não disponível';
 
-RESULTADOS:
-- Investimento total: ${formatBRL(reportData.metrics?.spend || 0)}
-- Leads gerados: ${reportData.metrics?.leads || 0}
-- ROAS médio: ${formatROAS(reportData.metrics?.roas || 0)}
-- CTR: ${formatPct(reportData.metrics?.ctr || 0)}
-- Frequência: ${(reportData.metrics?.frequency || 0).toFixed(1)}
+    const scoreContext =
+      (reportData.aiInsights?.score || 0) >= 80 ? 'excelente' :
+      (reportData.aiInsights?.score || 0) >= 60 ? 'satisfatório' :
+      (reportData.aiInsights?.score || 0) >= 40 ? 'com pontos de atenção' :
+      'crítico e exige revisão urgente';
 
-${reportData.previousMetrics ? `COMPARATIVO PERÍODO ANTERIOR:
-- Investimento anterior: ${formatBRL(reportData.previousMetrics.spend)}
-- Leads anterior: ${reportData.previousMetrics.leads}
-- ROAS anterior: ${formatROAS(reportData.previousMetrics.roas)}` : ''}
+    const prompt = `Escreva a análise executiva de um relatório de campanhas Meta Ads.
 
-SCORE DA CONTA: ${reportData.aiInsights?.score || 50}/100
+DADOS DO RELATÓRIO:
+Agência:       ${reportData.agencyName || 'MetaFlux'}
+Cliente:       ${reportData.accountName}
+Período:       ${reportData.period}
+Score IA:      ${reportData.aiInsights?.score || 0}/100 — desempenho ${scoreContext}
 
-Escreva 3 parágrafos em português brasileiro:
-1. Resumo executivo dos resultados (linguagem de negócio, sem jargão técnico)
-2. Destaques positivos e pontos de atenção
-3. Próximos passos recomendados
+RESULTADOS DO PERÍODO:
+Investimento:        ${formatBRL(reportData.metrics?.spend || 0)}
+Leads gerados:       ${reportData.metrics?.leads || 0}
+Custo por lead:      ${cpl}
+Retorno (ROAS):      ${formatROAS(reportData.metrics?.roas || 0)}
+Taxa de cliques:     ${formatPct(reportData.metrics?.ctr || 0)}
+Frequência média:    ${(reportData.metrics?.frequency || 0).toFixed(1)}
+Impressões:          ${(reportData.metrics?.impressions || 0).toLocaleString('pt-BR')}
 
-Tom: profissional, direto, focado em resultados de negócio.
-Máximo 250 palavras no total.`;
+${reportData.previousMetrics ? `COMPARATIVO COM PERÍODO ANTERIOR:
+Investimento:  ${formatBRL(reportData.previousMetrics.spend)} ${trendSpend ? `(${parseFloat(trendSpend) >= 0 ? '+' : ''}${trendSpend}%)` : ''}
+Leads:         ${reportData.previousMetrics.leads} ${trendLeads ? `(${parseFloat(trendLeads) >= 0 ? '+' : ''}${trendLeads}%)` : ''}
+ROAS:          ${formatROAS(reportData.previousMetrics.roas)} ${trendRoas ? `(${parseFloat(trendRoas) >= 0 ? '+' : ''}${trendRoas}%)` : ''}` : 'Sem dados de período anterior para comparação.'}
+
+PRINCIPAIS INSIGHTS DA IA:
+${(reportData.aiInsights?.insights || []).map((i: string, idx: number) => `${idx + 1}. ${i}`).join('\n') || 'Não disponíveis.'}
+
+RECOMENDAÇÕES PRIORIZADAS:
+${(reportData.aiInsights?.suggestions || []).map((s: string, idx: number) => `${idx + 1}. ${s}`).join('\n') || 'Não disponíveis.'}
+
+Escreva exatamente 3 parágrafos, sem títulos, sem listas, sem markdown:
+
+Parágrafo 1 — Resumo executivo: apresente o resultado geral do período de forma clara, citando
+os números mais relevantes em linguagem de negócio. Se houve melhora, celebre. Se houve queda, seja honesto.
+
+Parágrafo 2 — Análise detalhada: aprofunde nos principais pontos — o que funcionou, o que não funcionou,
+o que o score de ${reportData.aiInsights?.score || 0}/100 representa na prática para o negócio do cliente.
+Mencione ao menos um dado específico (custo por lead, ROAS de uma campanha, frequência, etc.).
+
+Parágrafo 3 — Próximos passos: cite 2-3 ações concretas que serão tomadas no próximo período
+com base nos insights da IA. Seja específico e inspirador — o cliente deve sentir que está em boas mãos.
+
+Máximo 280 palavras. Tom: profissional, confiante, sem jargão técnico.`;
 
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const model = 'google/gemini-2.5-flash';
@@ -114,11 +148,16 @@ Máximo 250 palavras no total.`;
         messages: [
           {
             role: 'system',
-            content: 'Você é um especialista em marketing digital que escreve relatórios executivos claros e profissionais em português brasileiro.',
+            content: `Você é um redator especialista em marketing digital brasileiro.
+Escreve relatórios executivos para gestores de tráfego entregarem a seus clientes.
+Seu tom é: profissional, otimista quando os resultados permitem, honesto quando há problemas,
+e sempre orientado a próximos passos concretos.
+Nunca use siglas sem explicar (CTR, ROAS, CPL devem ser traduzidos ou contextualizados).
+Escreva sempre em português brasileiro formal, sem gírias.`,
           },
           { role: 'user', content: prompt },
         ],
-        max_tokens: 600,
+        max_tokens: 700,
         temperature: 0.4,
       }),
     });
