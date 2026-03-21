@@ -405,6 +405,73 @@ export default function GestorClientDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Link Meta Account Dialog */}
+      <Dialog open={linkOpen} onOpenChange={(open) => { setLinkOpen(open); if (!open) { setMetaToken(''); setAdAccountId(''); setShowToken(false); setConnectError(''); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Vincular conta Meta Ads</DialogTitle>
+            <DialogDescription>Conecte uma conta de anúncios a este cliente.</DialogDescription>
+          </DialogHeader>
+
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+              <ChevronDown className="h-4 w-4" />
+              Como obter seu token?
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3 p-3 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground space-y-1.5">
+              <p>1. Acesse o <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-1">Explorador da Graph API <ExternalLink className="h-3 w-3" /></a></p>
+              <p>2. Gere um token com: <code className="font-mono text-xs bg-background px-1 rounded">ads_read</code>, <code className="font-mono text-xs bg-background px-1 rounded">ads_management</code>, <code className="font-mono text-xs bg-background px-1 rounded">read_insights</code></p>
+              <p>3. Copie o token e cole abaixo</p>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <div className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">Token de acesso Meta *</Label>
+              <div className="relative">
+                <Input
+                  type={showToken ? 'text' : 'password'}
+                  value={metaToken}
+                  onChange={(e) => { setMetaToken(e.target.value); setConnectError(''); }}
+                  placeholder="EAAxxxxxxxxx..."
+                  className="h-10 bg-background border-border pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowToken(!showToken)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showToken ? <EyeOff className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm text-muted-foreground">ID da conta de anúncios *</Label>
+              <Input
+                value={adAccountId}
+                onChange={(e) => { setAdAccountId(e.target.value); setConnectError(''); }}
+                placeholder="act_528114338445986"
+                className="h-10 bg-background border-border"
+              />
+            </div>
+            {connectError && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive">{connectError}</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button className="w-full active:scale-[0.97]" onClick={handleLinkMeta} disabled={connecting}>
+              {connecting ? (
+                <><Loader2 className="h-4 w-4 animate-spin" />Validando token...</>
+              ) : 'Validar e vincular'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
