@@ -108,6 +108,17 @@ export async function validateAndSaveMetaAccount(
   gestorId: string,
   clientId: string
 ): Promise<{ success: boolean; accountName?: string; error?: string }> {
+  // 0. Pre-validate formats and rate limit
+  if (!validateMetaTokenFormat(token)) {
+    return { success: false, error: 'Formato de token inválido. O token deve começar com "EAA".' };
+  }
+  if (!validateAdAccountId(adAccountId)) {
+    return { success: false, error: 'ID de conta inválido. Use o formato: act_XXXXXXXXXX' };
+  }
+  if (!checkRateLimit(`meta_api_${gestorId}`, 10, 60000)) {
+    return { success: false, error: 'Muitas requisições. Aguarde um momento.' };
+  }
+
   // 1. Validate token
   const tokenCheck = await validateMetaToken(token);
   if (!tokenCheck.valid) {
