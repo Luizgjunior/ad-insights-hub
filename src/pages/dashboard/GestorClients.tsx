@@ -283,20 +283,28 @@ export default function GestorClients() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Invite Modal */}
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+      {/* Create Client Modal */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-sm bg-card border-border">
-          <DialogHeader><DialogTitle>Convidar cliente</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Cadastrar cliente</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="space-y-1.5">
-              <Label>Email do cliente</Label>
-              <Input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="cliente@email.com" />
+              <Label>Nome completo</Label>
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="João Silva" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="cliente@email.com" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Senha</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancelar</Button>
-            <Button onClick={handleInvite} disabled={saving || !inviteEmail.trim()}>
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Enviar convite
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+            <Button onClick={handleCreate} disabled={saving || !newEmail.trim() || !newPassword.trim()}>
+              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Cadastrar
             </Button>
           </DialogFooter>
         </DialogContent>
