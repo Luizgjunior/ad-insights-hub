@@ -230,7 +230,7 @@ export default function AiCenter() {
             ) : (
               <>
                 {analysis ? (
-                  <AiInsightCard analysis={analysis} showCost />
+                  <AiInsightCard analysis={analysis} />
                 ) : (
                   <div className="card-surface p-8 text-center">
                     <Sparkles className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
