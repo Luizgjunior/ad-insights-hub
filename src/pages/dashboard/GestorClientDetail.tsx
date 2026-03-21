@@ -43,6 +43,12 @@ export default function GestorClientDetail() {
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
   const [syncing, setSyncing] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [metaToken, setMetaToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
+  const [adAccountId, setAdAccountId] = useState('');
+  const [connecting, setConnecting] = useState(false);
+  const [connectError, setConnectError] = useState('');
   const { alerts } = useAlerts();
 
   // Fetch client profile
