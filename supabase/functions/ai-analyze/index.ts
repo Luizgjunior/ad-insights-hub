@@ -173,66 +173,114 @@ Deno.serve(async (req) => {
 
     let prompt: string;
     if (analysisType === 'daily') {
-      prompt = `Analise os dados de hoje da conta Meta Ads abaixo e retorne um JSON.
+      prompt = `Analise os dados de performance desta conta Meta Ads e retorne um JSON.
 
 CONTA: ${metrics.accountName} (${metrics.adAccountId})
-PERÍODO: ${metrics.period || 'Hoje'}
+NICHO/OBJETIVO: ${metrics.niche || 'Não informado'}
+PERÍODO ANALISADO: ${metrics.period || 'Hoje'}
 
-MÉTRICAS ATUAIS:
-- Gasto: ${formatBRL(metrics.spend || 0)}
-- Leads: ${metrics.leads || 0}
-- ROAS: ${formatROAS(metrics.roas || 0)}
-- CTR: ${formatPct(metrics.ctr || 0)}
-- CPC: ${formatBRL(metrics.cpc || 0)}
-- Frequência: ${(metrics.frequency || 0).toFixed(1)}
-- Impressões: ${(metrics.impressions || 0).toLocaleString('pt-BR')}
+═══ MÉTRICAS ATUAIS ════════════════════════
+Investimento:      ${formatBRL(metrics.spend || 0)}
+Leads gerados:     ${metrics.leads || 0}
+ROAS:              ${formatROAS(metrics.roas || 0)}
+CTR médio:         ${formatPct(metrics.ctr || 0)}
+CPC médio:         ${formatBRL(metrics.cpc || 0)}
+CPM:               ${formatBRL(metrics.cpm || 0)}
+Frequência média:  ${(metrics.frequency || 0).toFixed(1)}
+Impressões:        ${(metrics.impressions || 0).toLocaleString('pt-BR')}
+Cliques:           ${(metrics.clicks || 0).toLocaleString('pt-BR')}
+${metrics.leads > 0 ? `CPL (custo/lead):  ${formatBRL((metrics.spend || 0) / metrics.leads)}` : ''}
 
-COMPARATIVO COM PERÍODO ANTERIOR:
-- Gasto anterior: ${metrics.previousSpend ? formatBRL(metrics.previousSpend) : 'N/A'}
-- ROAS anterior: ${metrics.previousRoas ? formatROAS(metrics.previousRoas) : 'N/A'}
-- Leads anterior: ${metrics.previousLeads ?? 'N/A'}
+═══ COMPARATIVO PERÍODO ANTERIOR ═══════════
+Investimento:  ${metrics.previousSpend != null ? formatBRL(metrics.previousSpend) : 'Sem dados'}
+ROAS:          ${metrics.previousRoas != null ? formatROAS(metrics.previousRoas) : 'Sem dados'}
+Leads:         ${metrics.previousLeads != null ? metrics.previousLeads : 'Sem dados'}
+${metrics.previousSpend && metrics.spend ? `Variação gasto:  ${(((metrics.spend - metrics.previousSpend) / metrics.previousSpend) * 100).toFixed(1)}%` : ''}
+${metrics.previousRoas && metrics.roas ? `Variação ROAS:   ${(((metrics.roas - metrics.previousRoas) / metrics.previousRoas) * 100).toFixed(1)}%` : ''}
 
-Retorne EXATAMENTE este JSON:
+Retorne EXATAMENTE este JSON (sem texto adicional, sem markdown):
 {
-  "score": <número 0-100>,
-  "insights": ["insight 1", "insight 2", "insight 3"],
-  "suggestions": ["sugestão 1", "sugestão 2", "sugestão 3"],
-  "alerts": ["alerta 1 se houver"],
-  "summaryText": "Resumo de 2 frases em linguagem simples para o cliente final."
+  "score": <inteiro 0-100 calculado conforme os benchmarks do sistema>,
+  "insights": [
+    "<insight 1 com valores reais dos dados acima>",
+    "<insight 2 com valores reais dos dados acima>",
+    "<insight 3 com valores reais dos dados acima>"
+  ],
+  "suggestions": [
+    "<ação concreta e específica 1>",
+    "<ação concreta e específica 2>",
+    "<ação concreta e específica 3>"
+  ],
+  "alerts": [
+    "<alerta urgente se houver — omitir array se não houver alertas críticos>"
+  ],
+  "summaryText": "<2 frases em linguagem de negócio para o cliente final, sem siglas, citando o resultado principal do período>"
 }`;
     } else {
       const campaignsText = metrics.campaigns?.length
-        ? metrics.campaigns.map((c: any) =>
-            `  - ${c.name}: Gasto ${formatBRL(c.spend)}, Leads ${c.leads}, ROAS ${formatROAS(c.roas)}, CTR ${formatPct(c.ctr)}, Freq ${(c.frequency || 0).toFixed(1)}, Status: ${c.status}`
-          ).join('\n')
-        : '  Dados de campanha não disponíveis';
+        ? metrics.campaigns.map((c: any) => {
+            const cpl = c.leads > 0 ? (c.spend / c.leads).toFixed(2) : 'N/A';
+            return `  • ${c.name}
+    Status: ${c.status} | Objetivo: ${c.objective || 'N/D'}
+    Gasto: ${formatBRL(c.spend)} | Leads: ${c.leads} | CPL: R$ ${cpl}
+    ROAS: ${formatROAS(c.roas)} | CTR: ${formatPct(c.ctr)} | Frequência: ${(c.frequency || 0).toFixed(1)}`;
+          }).join('\n\n')
+        : '  Dados por campanha não disponíveis neste período.';
 
-      prompt = `Faça uma análise semanal completa da conta Meta Ads abaixo.
+      const sortedByRoas = metrics.campaigns?.length ? [...metrics.campaigns].sort((a: any, b: any) => b.roas - a.roas) : [];
+      const sortedByCtr = metrics.campaigns?.length ? [...metrics.campaigns].sort((a: any, b: any) => a.ctr - b.ctr) : [];
+      const topCampaign = sortedByRoas[0];
+      const worstCampaign = sortedByCtr[0];
+
+      prompt = `Faça uma análise semanal completa desta conta Meta Ads e retorne um JSON.
 
 CONTA: ${metrics.accountName} (${metrics.adAccountId})
+NICHO/OBJETIVO: ${metrics.niche || 'Não informado'}
 PERÍODO: últimos 7 dias
 
-MÉTRICAS CONSOLIDADAS:
-- Gasto total: ${formatBRL(metrics.spend || 0)}
-- Leads: ${metrics.leads || 0}
-- ROAS médio: ${formatROAS(metrics.roas || 0)}
-- CTR médio: ${formatPct(metrics.ctr || 0)}
-- CPC médio: ${formatBRL(metrics.cpc || 0)}
-- CPM: ${formatBRL(metrics.cpm || 0)}
-- Frequência média: ${(metrics.frequency || 0).toFixed(1)}
-- Impressões: ${(metrics.impressions || 0).toLocaleString('pt-BR')}
-- Cliques: ${(metrics.clicks || 0).toLocaleString('pt-BR')}
+═══ MÉTRICAS CONSOLIDADAS ══════════════════
+Investimento total:   ${formatBRL(metrics.spend || 0)}
+Leads gerados:        ${metrics.leads || 0}
+ROAS médio:           ${formatROAS(metrics.roas || 0)}
+CTR médio:            ${formatPct(metrics.ctr || 0)}
+CPC médio:            ${formatBRL(metrics.cpc || 0)}
+CPM médio:            ${formatBRL(metrics.cpm || 0)}
+Frequência média:     ${(metrics.frequency || 0).toFixed(1)}
+Impressões totais:    ${(metrics.impressions || 0).toLocaleString('pt-BR')}
+Cliques totais:       ${(metrics.clicks || 0).toLocaleString('pt-BR')}
+${metrics.leads > 0 ? `CPL médio:            ${formatBRL((metrics.spend || 0) / metrics.leads)}` : 'CPL: sem leads no período'}
 
-CAMPANHAS:
+═══ COMPARATIVO SEMANA ANTERIOR ════════════
+Investimento:  ${metrics.previousSpend != null ? formatBRL(metrics.previousSpend) : 'Sem dados'}
+ROAS:          ${metrics.previousRoas != null ? formatROAS(metrics.previousRoas) : 'Sem dados'}
+Leads:         ${metrics.previousLeads != null ? metrics.previousLeads : 'Sem dados'}
+${metrics.previousSpend && metrics.spend ? `Δ Gasto:  ${(((metrics.spend - metrics.previousSpend) / metrics.previousSpend) * 100).toFixed(1)}%` : ''}
+${metrics.previousRoas && metrics.roas ? `Δ ROAS:   ${(((metrics.roas - metrics.previousRoas) / metrics.previousRoas) * 100).toFixed(1)}%` : ''}
+${metrics.previousLeads && metrics.leads ? `Δ Leads:  ${(((metrics.leads - metrics.previousLeads) / metrics.previousLeads) * 100).toFixed(1)}%` : ''}
+
+═══ CAMPANHAS DO PERÍODO ═══════════════════
 ${campaignsText}
 
-Retorne EXATAMENTE este JSON:
+${topCampaign ? `MELHOR CAMPANHA (ROAS): ${topCampaign.name} — ${formatROAS(topCampaign.roas)}` : ''}
+${worstCampaign ? `MENOR CTR: ${worstCampaign.name} — ${formatPct(worstCampaign.ctr)}` : ''}
+
+Retorne EXATAMENTE este JSON (sem texto adicional, sem markdown):
 {
-  "score": <número 0-100>,
-  "insights": ["insight detalhado 1", "insight detalhado 2", "insight detalhado 3"],
-  "suggestions": ["sugestão acionável 1", "sugestão acionável 2", "sugestão acionável 3"],
-  "alerts": ["alerta crítico se houver"],
-  "summaryText": "Resumo de 3 frases em linguagem simples para o cliente."
+  "score": <inteiro 0-100 calculado conforme os benchmarks do sistema>,
+  "insights": [
+    "<insight detalhado 1 com números reais — O QUE está acontecendo>",
+    "<insight detalhado 2 com números reais — O QUE está acontecendo>",
+    "<insight detalhado 3 com números reais — O QUE está acontecendo>"
+  ],
+  "suggestions": [
+    "<ação específica 1 — O QUE FAZER, com campanha ou criativo citado se possível>",
+    "<ação específica 2 — O QUE FAZER, com campanha ou criativo citado se possível>",
+    "<ação específica 3 — O QUE FAZER, com campanha ou criativo citado se possível>"
+  ],
+  "alerts": [
+    "<alerta urgente se houver — omitir se não houver>"
+  ],
+  "summaryText": "<3 frases em linguagem de negócio sem siglas — resultado do período, destaque positivo, próximo passo prioritário>"
 }`;
     }
 
