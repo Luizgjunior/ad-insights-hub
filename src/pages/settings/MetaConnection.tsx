@@ -4,6 +4,8 @@ import { useMetaAccounts } from '@/hooks/useMetaAccounts';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateAndSaveMetaAccount } from '@/lib/metaApi';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { daysUntil } from '@/lib/utils';
 import { usePlan } from '@/hooks/usePlan';
 import { Button } from '@/components/ui/button';
