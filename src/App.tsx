@@ -12,6 +12,7 @@ import Register from '@/pages/auth/Register';
 
 const Onboarding = lazy(() => import('@/pages/onboarding/Onboarding'));
 const GestorDashboard = lazy(() => import('@/pages/dashboard/GestorDashboard'));
+const GestorClients = lazy(() => import('@/pages/dashboard/GestorClients'));
 const GestorClientDetail = lazy(() => import('@/pages/dashboard/GestorClientDetail'));
 const ClientDashboard = lazy(() => import('@/pages/dashboard/ClientDashboard'));
 const AiCenter = lazy(() => import('@/pages/ai/AiCenter'));
@@ -69,6 +70,7 @@ function AppRoutes() {
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
         <Route path="/gestor" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorDashboard /></ProtectedRoute>} />
+        <Route path="/gestor/clientes" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorClients /></ProtectedRoute>} />
         <Route path="/gestor/cliente/:id" element={<ProtectedRoute allowedRoles={['admin_gestor']}><GestorClientDetail /></ProtectedRoute>} />
         <Route path="/gestor/campanhas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><CampaignsList /></ProtectedRoute>} />
         <Route path="/gestor/alertas" element={<ProtectedRoute allowedRoles={['admin_gestor']}><AlertsList /></ProtectedRoute>} />
