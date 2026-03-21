@@ -73,8 +73,8 @@ export default function MetaConnection() {
   };
 
   const handleConnect = async () => {
-    if (!metaToken.trim() || !adAccountId.trim()) {
-      setConnectError('Preencha o token e o ID da conta.');
+    if (!metaToken.trim() || !adAccountId.trim() || !selectedClientId) {
+      setConnectError('Preencha todos os campos obrigatórios.');
       return;
     }
     if (!user) return;
@@ -83,7 +83,7 @@ export default function MetaConnection() {
     setConnectError('');
 
     const formattedId = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
-    const result = await validateAndSaveMetaAccount(metaToken.trim(), formattedId, user.id, user.id);
+    const result = await validateAndSaveMetaAccount(metaToken.trim(), formattedId, user.id, selectedClientId);
 
     setConnecting(false);
 
