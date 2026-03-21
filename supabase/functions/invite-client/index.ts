@@ -115,6 +115,43 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ─── CREATE CLIENT (direct registration) ────
+    if (action === 'create_client') {
+      const { email, password, fullName, gestorId } = body;
+      if (!email || !password || !gestorId) {
+        return new Response(JSON.stringify({ error: 'Email, senha e gestorId são obrigatórios.' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: fullName || email.split('@')[0],
+          role: 'usuario_cliente',
+          gestor_id: gestorId,
+        },
+      });
+
+      if (createError) {
+        return new Response(JSON.stringify({ error: createError.message }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (newUser?.user?.id) {
+        await supabaseAdmin.from('profiles').update({ gestor_id: gestorId }).eq('id', newUser.user.id);
+      }
+
+      return new Response(JSON.stringify({ success: true, userId: newUser?.user?.id }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // ─── INVITE CLIENT (original) ────────────────
     const { email, gestorId } = body;
     if (!email || !gestorId) {

@@ -37,11 +37,13 @@ export default function GestorClients() {
   // Modal states
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [inviteOpen, setInviteOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<ClientProfile | null>(null);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
-  const [inviteEmail, setInviteEmail] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
 
   const { data: clients = [], isLoading } = useQuery({
@@ -131,20 +133,20 @@ export default function GestorClients() {
     }
   }
 
-  async function handleInvite() {
-    if (!inviteEmail.trim() || !user) return;
+  async function handleCreate() {
+    if (!newEmail.trim() || !newPassword.trim() || !user) return;
     setSaving(true);
     try {
       const { error } = await supabase.functions.invoke('invite-client', {
-        body: { email: inviteEmail.trim(), gestorId: user.id },
+        body: { action: 'create_client', email: newEmail.trim(), password: newPassword, fullName: newName.trim(), gestorId: user.id },
       });
       if (error) throw error;
-      toast.success('Convite enviado!');
-      setInviteOpen(false);
-      setInviteEmail('');
+      toast.success('Cliente criado com sucesso!');
+      setCreateOpen(false);
+      setNewName(''); setNewEmail(''); setNewPassword('');
       queryClient.invalidateQueries({ queryKey: ['gestor-clients'] });
-    } catch {
-      toast.error('Erro ao convidar cliente.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Erro ao criar cliente.');
     } finally {
       setSaving(false);
     }
@@ -160,9 +162,9 @@ export default function GestorClients() {
               {clients.length} cliente{clients.length !== 1 ? 's' : ''} vinculado{clients.length !== 1 ? 's' : ''}
             </p>
           </div>
-          <Button size="sm" className="gap-1.5" onClick={() => setInviteOpen(true)}>
+          <Button size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
             <UserPlus className="h-4 w-4" />
-            <span className="hidden sm:inline">Convidar cliente</span>
+            <span className="hidden sm:inline">Cadastrar cliente</span>
           </Button>
         </div>
 
@@ -192,8 +194,8 @@ export default function GestorClients() {
             icon={Users}
             title={search ? 'Nenhum cliente encontrado' : 'Nenhum cliente vinculado'}
             description={search ? 'Tente buscar com outro termo.' : 'Convide seu primeiro cliente para que ele tenha acesso ao dashboard de métricas.'}
-            actionLabel={!search ? 'Convidar cliente' : undefined}
-            onAction={!search ? () => setInviteOpen(true) : undefined}
+            actionLabel={!search ? 'Cadastrar cliente' : undefined}
+            onAction={!search ? () => setCreateOpen(true) : undefined}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -281,20 +283,28 @@ export default function GestorClients() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Invite Modal */}
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+      {/* Create Client Modal */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-sm bg-card border-border">
-          <DialogHeader><DialogTitle>Convidar cliente</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Cadastrar cliente</DialogTitle></DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="space-y-1.5">
-              <Label>Email do cliente</Label>
-              <Input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="cliente@email.com" />
+              <Label>Nome completo</Label>
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="João Silva" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="cliente@email.com" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Senha</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancelar</Button>
-            <Button onClick={handleInvite} disabled={saving || !inviteEmail.trim()}>
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Enviar convite
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+            <Button onClick={handleCreate} disabled={saving || !newEmail.trim() || !newPassword.trim()}>
+              {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}Cadastrar
             </Button>
           </DialogFooter>
         </DialogContent>
