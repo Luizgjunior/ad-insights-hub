@@ -194,8 +194,8 @@ export default function GestorClients() {
             icon={Users}
             title={search ? 'Nenhum cliente encontrado' : 'Nenhum cliente vinculado'}
             description={search ? 'Tente buscar com outro termo.' : 'Convide seu primeiro cliente para que ele tenha acesso ao dashboard de métricas.'}
-            actionLabel={!search ? 'Convidar cliente' : undefined}
-            onAction={!search ? () => setInviteOpen(true) : undefined}
+            actionLabel={!search ? 'Cadastrar cliente' : undefined}
+            onAction={!search ? () => setCreateOpen(true) : undefined}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
