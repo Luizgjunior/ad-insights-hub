@@ -179,6 +179,33 @@ export default function GestorClientDetail() {
     }
   }, [accounts, queryClient]);
 
+  const handleLinkMeta = async () => {
+    if (!metaToken.trim() || !adAccountId.trim() || !user || !clientId) {
+      setConnectError('Preencha todos os campos.');
+      return;
+    }
+    setConnecting(true);
+    setConnectError('');
+    const formattedId = adAccountId.startsWith('act_') ? adAccountId : `act_${adAccountId}`;
+    const result = await validateAndSaveMetaAccount(metaToken.trim(), formattedId, user.id, clientId);
+    setConnecting(false);
+    if (!result.success) {
+      setConnectError(result.error || 'Erro ao conectar.');
+      return;
+    }
+    toast.success(`✓ Conta ${result.accountName || formattedId} vinculada ao cliente!`);
+    setMetaToken(''); setAdAccountId(''); setShowToken(false); setConnectError('');
+    setLinkOpen(false);
+    queryClient.invalidateQueries({ queryKey: ['client-meta-accounts', clientId] });
+  };
+
+  const handleUnlinkAccount = async (accId: string) => {
+    const { error } = await supabase.from('meta_accounts').delete().eq('id', accId);
+    if (error) { toast.error('Erro ao desvincular.'); return; }
+    toast.success('Conta desvinculada.');
+    queryClient.invalidateQueries({ queryKey: ['client-meta-accounts', clientId] });
+  };
+
   return (
     <AppShell title={client?.full_name || 'Detalhes do Cliente'}>
       <div className="p-5 lg:p-8 space-y-6 max-w-5xl">
