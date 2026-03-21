@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { validateAdAccountId, validateMetaTokenFormat, checkRateLimit } from './security';
 
 const META_BASE = 'https://graph.facebook.com/v20.0';
 

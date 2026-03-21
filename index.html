@@ -3,17 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>MetaFlux — Gestão de Meta Ads com IA</title>
-    <meta name="description" content="Plataforma SaaS de gestão e otimização de campanhas Meta Ads com inteligência artificial" />
-    <meta property="og:title" content="MetaFlux — Gestão de Meta Ads com IA" />
-    <meta property="og:description" content="Plataforma SaaS de gestão e otimização de campanhas Meta Ads com inteligência artificial" />
+
+    <!-- SEO -->
+    <title>MetaFlux — Gestão Inteligente de Meta Ads com IA</title>
+    <meta name="description" content="Gerencie campanhas Meta Ads de múltiplos clientes com inteligência artificial. Relatórios automáticos, alertas em tempo real e otimização com IA." />
+    <meta name="keywords" content="meta ads, facebook ads, gestão de tráfego, IA, relatórios, campanhas" />
+    <meta name="author" content="MetaFlux" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:title" content="MetaFlux — Meta Ads com IA" />
+    <meta property="og:description" content="Gerencie campanhas Meta Ads com inteligência artificial." />
+    <meta property="og:url" content="https://metaflux.com.br" />
+    <meta property="og:image" content="https://metaflux.com.br/og-image.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#1877F2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="MetaFlux" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+    <!-- CSP -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: blob: https://*.supabase.co https://graph.facebook.com;
+      connect-src 'self' https://*.supabase.co https://graph.facebook.com wss://*.supabase.co;
+      frame-src 'none';
+      object-src 'none';
+    " />
   </head>
 
   <body>
