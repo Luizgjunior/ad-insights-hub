@@ -1,6 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, BarChart2, Sparkles, FileText, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function BottomNav() {
@@ -23,19 +22,28 @@ export default function BottomNav() {
       ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around bg-surface border-t border-border bottom-nav">
+    <nav
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around bottom-nav"
+      style={{
+        background: 'var(--surface-1)',
+        borderTop: '0.5px solid var(--border-subtle)',
+      }}
+    >
       {items.map(({ to, icon: Icon, label }) => {
         const isActive = location.pathname === to;
         return (
           <NavLink
             key={to}
             to={to}
-            className={cn(
-              'flex flex-col items-center gap-0.5 py-1.5 px-3 text-[10px] font-medium transition-colors',
-              isActive ? 'text-primary' : 'text-muted-foreground'
-            )}
+            className="flex flex-col items-center gap-0.5 py-1.5 px-3"
+            style={{
+              fontSize: 10,
+              fontWeight: isActive ? 500 : 400,
+              color: isActive ? 'var(--accent)' : 'var(--text-tertiary)',
+              transition: 'color 100ms',
+            }}
           >
-            <Icon className="h-5 w-5" />
+            <Icon style={{ width: 20, height: 20 }} />
             <span>{label}</span>
           </NavLink>
         );
