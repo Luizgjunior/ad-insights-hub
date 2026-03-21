@@ -12,6 +12,7 @@ import Register from '@/pages/auth/Register';
 
 const Onboarding = lazy(() => import('@/pages/onboarding/Onboarding'));
 const GestorDashboard = lazy(() => import('@/pages/dashboard/GestorDashboard'));
+const GestorClients = lazy(() => import('@/pages/dashboard/GestorClients'));
 const GestorClientDetail = lazy(() => import('@/pages/dashboard/GestorClientDetail'));
 const ClientDashboard = lazy(() => import('@/pages/dashboard/ClientDashboard'));
 const AiCenter = lazy(() => import('@/pages/ai/AiCenter'));
