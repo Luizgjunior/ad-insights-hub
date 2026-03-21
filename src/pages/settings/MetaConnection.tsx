@@ -39,10 +39,27 @@ export default function MetaConnection() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
+  // Client list for selector
+  const { data: clientsList = [] } = useQuery({
+    queryKey: ['gestor-clients-list', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('gestor_id', user.id)
+        .eq('role', 'usuario_cliente')
+        .order('full_name');
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   // Add form state
   const [metaToken, setMetaToken] = useState('');
   const [showToken, setShowToken] = useState(false);
   const [adAccountId, setAdAccountId] = useState('');
+  const [selectedClientId, setSelectedClientId] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState('');
 
@@ -52,6 +69,7 @@ export default function MetaConnection() {
     setShowToken(false);
     setConnectError('');
     setConnecting(false);
+    setSelectedClientId('');
   };
 
   const handleConnect = async () => {
