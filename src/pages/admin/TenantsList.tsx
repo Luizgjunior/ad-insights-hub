@@ -307,7 +307,7 @@ export default function TenantsList() {
                     <div className="flex items-center gap-1.5">
                       <p className="text-sm font-medium text-foreground truncate">{t.full_name || 'Sem nome'}</p>
                       {isLifetime(t) && (
-                        <Crown className="h-3.5 w-3.5 text-warning shrink-0" title="Vitalício" />
+                        <span title="Vitalício"><Crown className="h-3.5 w-3.5 text-warning shrink-0" /></span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">{t.email}</p>
