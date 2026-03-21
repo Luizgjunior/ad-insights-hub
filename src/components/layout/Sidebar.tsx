@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -40,6 +39,7 @@ function useNavItems(): NavItem[] {
     ];
   }
 
+  // admin_gestor (default)
   return [
     { to: '/gestor', icon: LayoutDashboard, label: 'Visão Geral' },
     { to: '/gestor/clientes', icon: Users, label: 'Clientes' },
@@ -62,54 +62,18 @@ export default function Sidebar() {
     usuario_cliente: 'Cliente',
   };
 
-  useEffect(() => {
-    const sidebar = document.getElementById('sidebar-container');
-    if (!sidebar) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = sidebar.getBoundingClientRect();
-      sidebar.style.setProperty('--sx', `${e.clientX - rect.left}px`);
-      sidebar.style.setProperty('--sy', `${e.clientY - rect.top}px`);
-    };
-    sidebar.addEventListener('mousemove', handleMouseMove);
-    return () => sidebar.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   return (
-    <aside
-      id="sidebar-container"
-      className="hidden lg:flex h-screen w-60 flex-col fixed left-0 top-0 z-30 animate-slide-in-left"
-      style={{
-        background: 'var(--surface-1)',
-        borderRight: '0.5px solid var(--border-subtle)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Mouse glow */}
-      <div
-        style={{
-          position: 'absolute',
-          width: 200,
-          height: 200,
-          top: 'calc(var(--sy, -200px) - 100px)',
-          left: 'calc(var(--sx, -200px) - 100px)',
-          background: 'radial-gradient(circle, rgba(47,128,237,0.05) 0%, transparent 70%)',
-          pointerEvents: 'none',
-          transition: 'top 60ms, left 60ms',
-          zIndex: 0,
-        }}
-      />
-
+    <aside className="hidden lg:flex h-screen w-60 flex-col bg-surface border-r border-border fixed left-0 top-0 z-30 animate-slide-in-left">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-14 shrink-0 relative z-10" style={{ borderBottom: '0.5px solid var(--border-subtle)' }}>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: 'var(--accent)' }}>
-          <Zap className="h-4 w-4 text-white" />
+      <div className="flex items-center gap-2.5 px-5 h-14 border-b border-border shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+          <Zap className="h-4 w-4 text-primary-foreground" />
         </div>
-        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>MetaFlux</span>
+        <span className="text-base font-bold text-foreground tracking-tight">MetaFlux</span>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto relative z-10">
+      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
         {navItems.map(({ to, icon: Icon, label, badge }) => {
           const isActive = location.pathname === to ||
             (to !== '/gestor' && to !== '/admin' && to !== '/dashboard' && location.pathname.startsWith(to));
@@ -118,17 +82,16 @@ export default function Sidebar() {
               key={to}
               to={to}
               className={cn(
-                'sidebar-item',
-                isActive && 'active'
+                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 relative',
+                isActive
+                  ? 'nav-item-active'
+                  : 'text-muted-foreground hover:bg-card-hover hover:text-foreground'
               )}
             >
-              <Icon className="sidebar-icon" />
+              <Icon className="h-4 w-4 shrink-0" />
               <span className="flex-1">{label}</span>
               {badge !== undefined && badge > 0 && (
-                <span
-                  className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-medium text-white"
-                  style={{ background: 'var(--danger)', fontSize: 10 }}
-                >
+                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-danger px-1.5 text-[10px] font-bold text-white badge-pill">
                   {badge}
                 </span>
               )}
@@ -141,40 +104,22 @@ export default function Sidebar() {
       <TrialMini />
 
       {/* User footer */}
-      <div className="relative z-10 p-3" style={{ borderTop: '0.5px solid var(--border-subtle)' }}>
+      <div className="border-t border-border p-3">
         <div className="flex items-center gap-2.5">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium shrink-0"
-            style={{ background: 'var(--surface-3)', color: 'var(--text-primary)' }}
-          >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-xs font-semibold text-foreground uppercase shrink-0">
             {profile?.full_name?.charAt(0) || '?'}
           </div>
           <div className="flex-1 min-w-0">
-            <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)' }} className="truncate">
+            <p className="text-sm font-medium text-foreground truncate">
               {profile?.full_name || 'Usuário'}
             </p>
-            <span
-              className="inline-block mt-0.5"
-              style={{
-                fontSize: 10,
-                fontWeight: 500,
-                color: 'var(--accent)',
-                background: 'var(--accent-muted)',
-                padding: '1px 6px',
-                borderRadius: 4,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-              }}
-            >
+            <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-primary badge-pill bg-primary/10 px-2 py-0.5 mt-0.5">
               {roleLabel[profile?.role || 'admin_gestor']}
             </span>
           </div>
           <button
             onClick={signOut}
-            className="p-1.5 rounded-md transition-colors active:scale-95"
-            style={{ color: 'var(--text-tertiary)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
+            className="p-1.5 rounded-md text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors active:scale-95"
             title="Sair"
           >
             <LogOut className="h-4 w-4" />
@@ -193,23 +138,16 @@ function TrialMini() {
   if (!isTrial || daysLeft === null) return null;
 
   return (
-    <div
-      className="mx-3 mb-2 p-2.5 rounded-lg relative z-10"
-      style={{
-        background: 'var(--warning-muted)',
-        border: '0.5px solid rgba(202,138,4,0.2)',
-      }}
-    >
+    <div className="mx-3 mb-2 p-2.5 rounded-lg bg-warning/10 border border-warning/20">
       <div className="flex items-center gap-2 mb-1.5">
-        <AlertCircle className="h-3.5 w-3.5 shrink-0" style={{ color: '#fbbf24' }} />
-        <span style={{ fontSize: 12, fontWeight: 500, color: '#fbbf24' }}>
+        <AlertCircle className="h-3.5 w-3.5 text-warning shrink-0" />
+        <span className="text-xs font-semibold text-warning">
           Trial — {daysLeft > 0 ? `${daysLeft} dias` : 'Expirado'}
         </span>
       </div>
       <button
         onClick={() => navigate('/settings/plano')}
-        style={{ fontSize: 11, fontWeight: 500, color: 'var(--accent)' }}
-        className="hover:underline"
+        className="text-[11px] font-semibold text-primary hover:underline"
       >
         Assinar agora →
       </button>

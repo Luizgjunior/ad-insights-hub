@@ -230,7 +230,7 @@ export default function AiCenter() {
             ) : (
               <>
                 {analysis ? (
-                  <AiInsightCard analysis={analysis} />
+                  <AiInsightCard analysis={analysis} showCost />
                 ) : (
                   <div className="card-surface p-8 text-center">
                     <Sparkles className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
@@ -384,7 +384,7 @@ export default function AiCenter() {
           <DialogHeader>
             <DialogTitle>Detalhes da Análise</DialogTitle>
           </DialogHeader>
-          {viewAnalysis && <AiInsightCard analysis={viewAnalysis} />}
+          {viewAnalysis && <AiInsightCard analysis={viewAnalysis} showCost />}
         </DialogContent>
       </Dialog>
     </AppShell>
