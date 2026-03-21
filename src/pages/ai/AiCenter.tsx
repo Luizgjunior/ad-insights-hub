@@ -384,7 +384,7 @@ export default function AiCenter() {
           <DialogHeader>
             <DialogTitle>Detalhes da Análise</DialogTitle>
           </DialogHeader>
-          {viewAnalysis && <AiInsightCard analysis={viewAnalysis} showCost />}
+          {viewAnalysis && <AiInsightCard analysis={viewAnalysis} />}
         </DialogContent>
       </Dialog>
     </AppShell>
