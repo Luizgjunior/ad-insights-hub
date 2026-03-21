@@ -162,9 +162,9 @@ export default function GestorClients() {
               {clients.length} cliente{clients.length !== 1 ? 's' : ''} vinculado{clients.length !== 1 ? 's' : ''}
             </p>
           </div>
-          <Button size="sm" className="gap-1.5" onClick={() => setInviteOpen(true)}>
+          <Button size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
             <UserPlus className="h-4 w-4" />
-            <span className="hidden sm:inline">Convidar cliente</span>
+            <span className="hidden sm:inline">Cadastrar cliente</span>
           </Button>
         </div>
 
